@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع أم الكرفس الإخباري</title>
+    <title>منصة أم الكرفس الإخبارية - لوحة التحكم</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* الألوان الأساسية والتنسيق العام */
         :root {
             --primary-green: #2ecc71; 
             --light-green: #e8f8f5; 
@@ -15,379 +15,220 @@
             --accent-yellow: #f1c40f; 
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--light-green); color: var(--dark-gray); }
 
-        body {
-            background-color: var(--light-green);
-            color: var(--dark-gray);
-        }
-
-        /* الهيدر وشريط التنقل */
+        /* الهيدر */
         header {
-            background-color: var(--white);
-            border-bottom: 4px solid var(--primary-green);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background-color: var(--white); border-bottom: 4px solid var(--primary-green);
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary-green); text-decoration: none; }
+        .btn-admin { background: var(--dark-gray); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
+        /* لوحة التحكم المخفية */
+        .admin-panel {
+            display: none; background: white; max-width: 700px; margin: 30px auto;
+            padding: 30px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--accent-yellow);
         }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-green);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .admin-panel h2 { margin-bottom: 20px; color: var(--dark-gray); }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: bold; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; outline: none;
         }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-green); }
+        .btn-submit { background: var(--primary-green); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { opacity: 0.9; }
 
-        .logo span {
-            background-color: var(--accent-yellow);
-            color: var(--dark-gray);
-            padding: 2px 8px;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 20px;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--dark-gray);
-            font-weight: 600;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: var(--primary-green);
-        }
-
-        /* أيقونات التواصل */
-        .social-header {
-            display: flex;
-            gap: 15px;
-        }
-
-        .social-header a {
-            color: var(--dark-gray);
-            font-size: 18px;
-            transition: transform 0.3s, color 0.3s;
-        }
-
-        .social-header a:hover { transform: scale(1.2); }
-        .social-header .fa-facebook:hover { color: #1877f2; }
-        .social-header .fa-instagram:hover { color: #e1306c; }
-        .social-header .fa-youtube:hover { color: #ff0000; }
-
-        /* صندوق الكلام والترحيب الأمامي */
-        .hero-container {
-            max-width: 1200px;
-            margin: 30px auto 10px auto;
-            padding: 0 20px;
-        }
-
-        .hero-box {
-            background-color: var(--white);
-            border-right: 8px solid var(--primary-green);
-            border-left: 8px solid var(--accent-yellow);
-            border-radius: 12px;
-            padding: 35px 25px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-        }
-
-        .hero-box h1 {
-            font-size: 32px;
-            color: var(--dark-gray);
-            margin-bottom: 12px;
-            font-weight: 800;
-        }
-
-        .hero-box p {
-            font-size: 16px;
-            color: #555;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* هيكلية الأقسام */
-        .main-container {
-            max-width: 1200px;
-            margin: 10px auto 30px auto;
-            padding: 0 20px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            color: var(--dark-gray);
-            border-right: 5px solid var(--primary-green);
-            padding-right: 10px;
-            margin: 40px 0 20px 0;
-        }
-
-        /* شبكة البطاقات وتثبيت حجم الواجهة */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
+        /* أقسام الأخبار للزوار */
+        .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .section-title { font-size: 24px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 40px 0 20px 0; }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        
+        /* البطاقات */
         .news-card {
-            background-color: var(--white);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            flex-direction: column;
-            height: 420px; /* يحافظ على حجم منظم وموحد للواجهة دائماً */
-            border: 1px solid rgba(46, 204, 113, 0.15);
+            background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
+            height: 420px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
+        .card-img { width: 100%; height: 180px; object-fit: cover; }
+        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+        .card-title { font-size: 16px; font-weight: bold; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-text { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
+        .card-date { font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
 
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.15);
-        }
-
-        .card-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background-color: #ddd;
-        }
-
-        .card-content {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            justify-content: space-between;
-        }
-
-        .card-tag {
-            align-self: flex-start;
-            background-color: var(--accent-yellow);
-            color: var(--dark-gray);
-            font-size: 11px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            color: var(--dark-gray);
-            line-height: 1.4;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* سطرين كحد أقصى */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-text {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 3; /* ثلاثة أسطر كحد أقصى */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .card-date {
-            font-size: 11px;
-            color: #999;
-            border-top: 1px solid #eee;
-            padding-top: 8px;
-        }
-
-        /* الفوتر */
-        footer {
-            background-color: var(--dark-gray);
-            color: var(--white);
-            text-align: center;
-            padding: 40px 20px;
-            margin-top: 60px;
-            border-top: 5px solid var(--primary-green);
-        }
-
-        .footer-social {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .footer-social a {
-            color: var(--white);
-            font-size: 22px;
-            transition: color 0.3s, transform 0.3s;
-        }
-
-        .footer-social a:hover {
-            color: var(--accent-yellow);
-            transform: translateY(-3px);
-        }
-
-        footer p {
-            font-size: 14px;
-            opacity: 0.8;
-        }
+        footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-container">
-            <a href="#" class="logo"> منصة أم الكرفس <span>عاجل</span></a>
-            <div class="nav-links">
-                <nav>
-                    <ul>
-                        <li><a href="#">الرئيسية</a></li>
-                        <li><a href="#zone">أخبار المنطقة</a></li>
-                        <li><a href="#local">أخبار محلية</a></li>
-                        <li><a href="#global">أخبار عالمية</a></li>
-                    </ul>
-                </nav>
-                <div class="social-header">
-                    <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-                    <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
+            <a href="#" class="logo">☘️ منصة أم الكرفس</a>
+            <button class="btn-admin" onclick="toggleAdminPanel()"><i class="fa-solid fa-user-gear"></i> لوحة النشر</button>
         </div>
     </header>
 
-    <div class="hero-container">
-        <div class="hero-box">
-            <h1>بوابة أم الكرفس الإخبارية</h1>
-            <p>آخر أخبار أُم الكرفس و العالم.</p>
-        </div>
+    <div class="admin-panel" id="adminPanel">
+        <h2>✍️ إضافة خبر جديد للمنصة</h2>
+        <form id="newsForm">
+            <div class="form-group">
+                <label>عنوان الخبر:</label>
+                <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً ومختصراً...">
+            </div>
+            <div class="form-group">
+                <label>تصنيف الخبر (القسم):</label>
+                <select id="newsTag" required>
+                    <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
+                    <option value="محلي">أخبار محلية</option>
+                    <option value="عالمي">أخبار عالمية</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>رابط صورة الخبر:</label>
+                <input type="url" id="newsImage" required placeholder="ضع رابط الصورة هنا...">
+            </div>
+            <div class="form-group">
+                <label>نص المقالة / الملخص:</label>
+                <textarea id="newsSummary" rows="4" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit">🚀 نشر الخبر الآن</button>
+        </form>
     </div>
 
     <main class="main-container">
-        <section id="zone">
+        <section>
             <h2 class="section-title">أخبار المنطقة</h2>
             <div class="news-grid" id="zone-news"></div>
         </section>
 
-        <section id="local">
+        <section>
             <h2 class="section-title">أخبار محلية</h2>
             <div class="news-grid" id="local-news"></div>
         </section>
 
-        <section id="global">
+        <section>
             <h2 class="section-title">أخبار عالمية</h2>
             <div class="news-grid" id="global-news"></div>
         </section>
     </main>
 
     <footer>
-        <div class="footer-social">
-            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-            <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
-        </div>
-        <p>جميع الحقوق محفوظة © موقع أم الكرفس الإخبارية 2026</p>
+        <p>جميع الحقوق محفوظة © منصة أم الكرفس الإخبارية 2026</p>
     </footer>
 
     <script>
-        // دالة تحسب الفارق الزمني تلقائياً وتحوله إلى نص عربي مألوف
+        // ربط السيرفر والمفتاح الخاص بك بشكل مباشر وصحيح
+        const SUPABASE_URL = "https://euaopeguxbuunqjuulre.supabase.co"; 
+        const SUPABASE_KEY = "Sb_publishable_OqM82C0FHLbmYvhDuxXB7w_o59ubw_l";
+        
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // وظيفة إظهار وإخفاء لوحة التحكم بحماية بكلمة مرور بسيطة
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+            } else {
+                const password = prompt("أدخل كلمة مرور إدارة أم الكرفس لدخول لوحة النشر:");
+                if (password === "12345") { 
+                    panel.style.display = 'block';
+                    panel.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert("كلمة المرور خاطئة!");
+                }
+            }
+        }
+
+        // دالة حساب الوقت تلقائياً
         function timeAgo(dateString) {
             const now = new Date();
             const postDate = new Date(dateString);
             const secondsPast = Math.floor((now - postDate) / 1000);
 
-            if (secondsPast < 0) return 'قبل قليل'; // في حال وجود فرق بسيط بساعات السيرفر
+            if (secondsPast < 0) return 'قبل قليل';
             if (secondsPast < 60) return 'منذ ثوانٍ';
-            
             const minutesPast = Math.floor(secondsPast / 60);
             if (minutesPast < 60) return `منذ ${minutesPast} دقيقة`;
-            
             const hoursPast = Math.floor(minutesPast / 60);
             if (hoursPast < 24) return `منذ ${hoursPast} ساعة`;
-            
             const daysPast = Math.floor(hoursPast / 24);
             if (daysPast === 1) return 'أمس';
             if (daysPast === 2) return 'منذ يومين';
-            if (daysPast > 2 && daysPast <= 10) return `منذ ${daysPast} أيام`;
-            return `منذ ${daysPast} يوم`;
+            return `منذ ${daysPast} أيام`;
         }
 
-        function createCard(newsItem, tagText) {
-            // استخدام دالة الوقت التلقائي هنا بناءً على قيمة تاريخ الخبر في الـ JSON
-            const automaticDate = timeAgo(newsItem.date);
-
+        function createCard(item) {
             return `
                 <article class="news-card">
-                    <img class="card-img" src="${newsItem.image}" alt="${newsItem.title}">
+                    <img class="card-img" src="${item.image}" alt="${item.title}">
                     <div class="card-content">
                         <div>
-                            <span class="card-tag">${tagText}</span>
-                            <h3 class="card-title">${newsItem.title}</h3>
-                            <p class="card-text">${newsItem.summary}</p>
+                            <span class="card-tag">${item.tag}</span>
+                            <h3 class="card-title">${item.title}</h3>
+                            <p class="card-text">${item.summary}</p>
                         </div>
-                        <div class="card-date">🕒 ${automaticDate}</div>
+                        <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
                     </div>
                 </article>
             `;
         }
 
-        // دالة جلب البيانات من ملف news.json الخارجي المرفوع على الـ GitHub بجانب الصفحة
-        async function fetchAndDisplayNews() {
+        // جلب البيانات من قاعدة البيانات وعرضها للزوار تلقائياً
+        async function loadNews() {
             try {
-                const response = await fetch('news.json');
-                if (!response.ok) {
-                    throw new Error('فشل في جلب ملف الأخبار المنفصل.');
-                }
-                const data = await response.json();
+                const { data: news, error } = await supabase
+                    .from('news')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-                const zoneContainer = document.getElementById('zone-news');
-                const localContainer = document.getElementById('local-news');
-                const globalContainer = document.getElementById('global-news');
+                if (error) throw error;
 
-                // عرض أول 3 أخبار فقط من كل مصفوفة لحفظ تنظيم الواجهة وعدم تمددها عشوائياً
-                if (data.zoneNews) data.zoneNews.slice(0, 3).forEach(item => { zoneContainer.innerHTML += createCard(item, "أم الكرفس"); });
-                if (data.localNews) data.localNews.slice(0, 3).forEach(item => { localContainer.innerHTML += createCard(item, "محلي"); });
-                if (data.globalNews) data.globalNews.slice(0, 3).forEach(item => { globalContainer.innerHTML += createCard(item, "عالمي"); });
+                document.getElementById('zone-news').innerHTML = "";
+                document.getElementById('local-news').innerHTML = "";
+                document.getElementById('global-news').innerHTML = "";
 
-            } catch (error) {
-                console.error('حدث خطأ أثناء تحميل البيانات:', error);
+                news.forEach(item => {
+                    if (item.tag === "أم الكرفس") {
+                        document.getElementById('zone-news').innerHTML += createCard(item);
+                    } else if (item.tag === "محلي") {
+                        document.getElementById('local-news').innerHTML += createCard(item);
+                    } else if (item.tag === "عالمي") {
+                        document.getElementById('global-news').innerHTML += createCard(item);
+                    }
+                });
+            } catch (err) {
+                console.error("خطأ أثناء جلب الأخبار:", err.message);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchAndDisplayNews();
+        // عملية النشر وإرسال البيانات إلى السيرفر
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('newsTitle').value;
+            const tag = document.getElementById('newsTag').value;
+            const image = document.getElementById('newsImage').value;
+            const summary = document.getElementById('newsSummary').value;
+
+            const { error } = await supabase
+                .from('news')
+                .insert([{ title, tag, image, summary }]);
+
+            if (error) {
+                alert("حدث خطأ أثناء النشر: " + error.message);
+            } else {
+                alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس والتقاط وقت النشر تلقائياً!");
+                document.getElementById('newsForm').reset();
+                document.getElementById('adminPanel').style.display = 'none';
+                loadNews(); 
+            }
         });
+
+        document.addEventListener('DOMContentLoaded', loadNews);
     </script>
 </body>
 </html>
