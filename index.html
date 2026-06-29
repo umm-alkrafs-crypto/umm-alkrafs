@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة أم الكرفس الإخبارية - لوحة التحكم</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary-green: #2ecc71; 
@@ -119,19 +119,27 @@
     <footer>
         <p>جميع الحقوق محفوظة © منصة أم الكرفس الإخبارية 2026</p>
     </footer>
-        <script>
-        // ربط السيرفر والمفتاح الخاص بك بشكل مباشر وصحيح
+
+    <script>
         const SUPABASE_URL = "https://euaopeguxbuunqjuulre.supabase.co"; 
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
-        let supabase;
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } catch(e) {
-            console.error("Supabase configuration error:", e);
+        let supabaseClient = null;
+
+        // محاولة تهيئة سوبابيس بشكل منفصل حتى لا يعطل الزر
+        function initSupabase() {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                } else if (window.Supabase && typeof window.Supabase.createClient === 'function') {
+                    supabaseClient = window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                }
+            } catch(e) {
+                console.error("Supabase failed to initialize:", e);
+            }
         }
 
-        // وظيفة إظهار وإخفاء لوحة التحكم بحماية بكلمة مرور بسيطة
+        // دالة فتح وإغلاق اللوحة أصبحت مستقلة تماماً الآن
         function toggleAdminPanel() {
             const panel = document.getElementById('adminPanel');
             if (panel.style.display === 'block') {
@@ -147,7 +155,6 @@
             }
         }
 
-        // دالة حساب الوقت تلقائياً
         function timeAgo(dateString) {
             const now = new Date();
             const postDate = new Date(dateString);
@@ -181,11 +188,12 @@
             `;
         }
 
-        // جلب البيانات من قاعدة البيانات وعرضها للزوار تلقائياً
         async function loadNews() {
-            if (!supabase) return;
+            if (!supabaseClient) initSupabase();
+            if (!supabaseClient) return;
+
             try {
-                const { data: news, error } = await supabase
+                const { data: news, error } = await supabaseClient
                     .from('news')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -206,15 +214,15 @@
                     }
                 });
             } catch (err) {
-                console.error("خطأ أثناء جلب الأخبار:", err.message);
+                console.error("Error loading news:", err.message);
             }
         }
 
-        // عملية النشر وإرسال البيانات إلى السيرفر
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!supabase) {
-                alert("لم يتم إعداد سيرفر البيانات بشكل صحيح بعد.");
+            if (!supabaseClient) initSupabase();
+            if (!supabaseClient) {
+                alert("جاري الاتصال بسيرفر البيانات، يرجى المحاولة بعد ثوانٍ أو التحقق من جودة الإنترنت لديك.");
                 return;
             }
 
@@ -224,14 +232,14 @@
             const summary = document.getElementById('newsSummary').value;
 
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('news')
                     .insert([{ title, tag, image, summary }]);
 
                 if (error) {
                     alert("حدث خطأ أثناء النشر: " + error.message);
                 } else {
-                    alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس والتقاط وقت النشر تلقائياً!");
+                    alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس!");
                     document.getElementById('newsForm').reset();
                     document.getElementById('adminPanel').style.display = 'none';
                     loadNews(); 
@@ -241,8 +249,10 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', loadNews);
+        window.addEventListener('DOMContentLoaded', () => {
+            initSupabase();
+            loadNews();
+        });
     </script>
-
 </body>
 </html>
