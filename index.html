@@ -268,7 +268,7 @@
 
     <header>
         <div class="header-container">
-            <a href="#" class="logo">☘️ منصة أم الكرفس <span>عاجل</span></a>
+            <a href="#" class="logo"> منصة أم الكرفس <span>عاجل</span></a>
             <div class="nav-links">
                 <nav>
                     <ul>
@@ -290,7 +290,7 @@
     <div class="hero-container">
         <div class="hero-box">
             <h1>بوابة أم الكرفس الإخبارية</h1>
-            <p>مرحباً بكم في المنصة الإخبارية الأولى للمنطقة. ننقل لكم الخبر بكل مصداقية وأمانة من قلب الحدث المحلي إلى الساحة العالمية.</p>
+            <p>آخر أخبار أُم الكرفس و العالم.</p>
         </div>
     </div>
 
@@ -321,7 +321,32 @@
     </footer>
 
     <script>
+        // دالة تحسب الفارق الزمني تلقائياً وتحوله إلى نص عربي مألوف
+        function timeAgo(dateString) {
+            const now = new Date();
+            const postDate = new Date(dateString);
+            const secondsPast = Math.floor((now - postDate) / 1000);
+
+            if (secondsPast < 0) return 'قبل قليل'; // في حال وجود فرق بسيط بساعات السيرفر
+            if (secondsPast < 60) return 'منذ ثوانٍ';
+            
+            const minutesPast = Math.floor(secondsPast / 60);
+            if (minutesPast < 60) return `منذ ${minutesPast} دقيقة`;
+            
+            const hoursPast = Math.floor(minutesPast / 60);
+            if (hoursPast < 24) return `منذ ${hoursPast} ساعة`;
+            
+            const daysPast = Math.floor(hoursPast / 24);
+            if (daysPast === 1) return 'أمس';
+            if (daysPast === 2) return 'منذ يومين';
+            if (daysPast > 2 && daysPast <= 10) return `منذ ${daysPast} أيام`;
+            return `منذ ${daysPast} يوم`;
+        }
+
         function createCard(newsItem, tagText) {
+            // استخدام دالة الوقت التلقائي هنا بناءً على قيمة تاريخ الخبر في الـ JSON
+            const automaticDate = timeAgo(newsItem.date);
+
             return `
                 <article class="news-card">
                     <img class="card-img" src="${newsItem.image}" alt="${newsItem.title}">
@@ -331,19 +356,18 @@
                             <h3 class="card-title">${newsItem.title}</h3>
                             <p class="card-text">${newsItem.summary}</p>
                         </div>
-                        <div class="card-date">🕒 ${newsItem.date}</div>
+                        <div class="card-date">🕒 ${automaticDate}</div>
                     </div>
                 </article>
             `;
         }
 
-        // دالة لجلب البيانات من ملف news.json الخارجي
+        // دالة جلب البيانات من ملف news.json الخارجي المرفوع على الـ GitHub بجانب الصفحة
         async function fetchAndDisplayNews() {
             try {
-                // سحب ملف الـ json المرفوع بجانب ملف الـ html
                 const response = await fetch('news.json');
                 if (!response.ok) {
-                    throw new Error('فشل في تحميل ملف الأخبار المنفصل.');
+                    throw new Error('فشل في جلب ملف الأخبار المنفصل.');
                 }
                 const data = await response.json();
 
@@ -351,13 +375,13 @@
                 const localContainer = document.getElementById('local-news');
                 const globalContainer = document.getElementById('global-news');
 
-                // عرض أحدث 3 أخبار فقط من كل قسم لضمان بقاء الحجم ثابتاً ومنظماً
-                data.zoneNews.slice(0, 3).forEach(item => { zoneContainer.innerHTML += createCard(item, "أم الكرفس"); });
-                data.localNews.slice(0, 3).forEach(item => { localContainer.innerHTML += createCard(item, "محلي"); });
-                data.globalNews.slice(0, 3).forEach(item => { globalContainer.innerHTML += createCard(item, "عالمي"); });
+                // عرض أول 3 أخبار فقط من كل مصفوفة لحفظ تنظيم الواجهة وعدم تمددها عشوائياً
+                if (data.zoneNews) data.zoneNews.slice(0, 3).forEach(item => { zoneContainer.innerHTML += createCard(item, "أم الكرفس"); });
+                if (data.localNews) data.localNews.slice(0, 3).forEach(item => { localContainer.innerHTML += createCard(item, "محلي"); });
+                if (data.globalNews) data.globalNews.slice(0, 3).forEach(item => { globalContainer.innerHTML += createCard(item, "عالمي"); });
 
             } catch (error) {
-                console.error('حدث خطأ أثناء جلب الأخبار:', error);
+                console.error('حدث خطأ أثناء تحميل البيانات:', error);
             }
         }
 
