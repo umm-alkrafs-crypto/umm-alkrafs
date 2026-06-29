@@ -13,6 +13,7 @@
             --white: #ffffff;
             --dark-gray: #2c3e50;
             --accent-yellow: #f1c40f; 
+            --danger-red: #e74c3c;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -51,14 +52,21 @@
         /* البطاقات */
         .news-card {
             background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
-            height: 420px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 450px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
         }
         .card-img { width: 100%; height: 180px; object-fit: cover; }
         .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
         .card-title { font-size: 16px; font-weight: bold; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .card-text { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
-        .card-date { font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 8px; }
+        .card-date { font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* زر الحذف السري */
+        .btn-delete {
+            display: none; background: var(--danger-red); color: white; border: none;
+            padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
+        }
 
         footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
     </style>
@@ -125,8 +133,8 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
         let supabaseClient = null;
+        let isAdminLoggedIn = false; // متغير لمعرفة هل المشرف سجل دخوله أم لا
 
-        // محاولة تهيئة سوبابيس بشكل منفصل حتى لا يعطل الزر
         function initSupabase() {
             try {
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
@@ -139,20 +147,33 @@
             }
         }
 
-        // دالة فتح وإغلاق اللوحة أصبحت مستقلة تماماً الآن
         function toggleAdminPanel() {
             const panel = document.getElementById('adminPanel');
             if (panel.style.display === 'block') {
                 panel.style.display = 'none';
+                isAdminLoggedIn = false;
+                updateDeleteButtonsVisibility();
             } else {
                 const password = prompt("أدخل كلمة مرور إدارة أم الكرفس لدخول لوحة النشر:");
                 if (password === "12345") { 
                     panel.style.display = 'block';
                     panel.scrollIntoView({ behavior: 'smooth' });
+                    isAdminLoggedIn = true;
+                    updateDeleteButtonsVisibility();
                 } else {
                     alert("كلمة المرور خاطئة!");
+                    isAdminLoggedIn = false;
+                    updateDeleteButtonsVisibility();
                 }
             }
+        }
+
+        // إظهار أو إخفاء أزرار الحذف بناءً على حالة تسجيل الدخول
+        function updateDeleteButtonsVisibility() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(btn => {
+                btn.style.display = isAdminLoggedIn ? 'block' : 'none';
+            });
         }
 
         function timeAgo(dateString) {
@@ -174,7 +195,7 @@
 
         function createCard(item) {
             return `
-                <article class="news-card">
+                <article class="news-card" id="card-${item.id}">
                     <img class="card-img" src="${item.image}" alt="${item.title}">
                     <div class="card-content">
                         <div>
@@ -182,10 +203,35 @@
                             <h3 class="card-title">${item.title}</h3>
                             <p class="card-text">${item.summary}</p>
                         </div>
-                        <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
+                        <div class="card-date">
+                            <span>🕒 ${timeAgo(item.created_at)}</span>
+                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                        </div>
                     </div>
                 </article>
             `;
+        }
+
+        // وظيفة حذف الخبر من السيرفر مباشرة
+        async function deleteNews(id) {
+            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
+            
+            if (!supabaseClient) initSupabase();
+            try {
+                const { error } = await supabaseClient
+                    .from('news')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    alert("فشل الحذف: " + error.message);
+                } else {
+                    alert("🗑️ تم حذف الخبر بنجاح من منصة أم الكرفس!");
+                    loadNews(); // إعادة تحميل الأخبار لتحديث الصفحة
+                }
+            } catch (err) {
+                alert("خطأ في الاتصال: " + err.message);
+            }
         }
 
         async function loadNews() {
@@ -222,7 +268,7 @@
             e.preventDefault();
             if (!supabaseClient) initSupabase();
             if (!supabaseClient) {
-                alert("جاري الاتصال بسيرفر البيانات، يرجى المحاولة بعد ثوانٍ أو التحقق من جودة الإنترنت لديك.");
+                alert("جاري الاتصال بسيرفر البيانات...");
                 return;
             }
 
@@ -242,6 +288,7 @@
                     alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس!");
                     document.getElementById('newsForm').reset();
                     document.getElementById('adminPanel').style.display = 'none';
+                    isAdminLoggedIn = false; // إغلاق حالة الآدمن لحماية الأزرار
                     loadNews(); 
                 }
             } catch(err) {
