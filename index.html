@@ -120,12 +120,20 @@
         <p>جميع الحقوق محفوظة © منصة أم الكرفس الإخبارية 2026</p>
     </footer>
 
-    <script>
+    
+       <script>
         // ربط السيرفر والمفتاح الخاص بك بشكل مباشر وصحيح
         const SUPABASE_URL = "https://euaopeguxbuunqjuulre.supabase.co"; 
-        const SUPABASE_KEY = "Sb_publishable_OqM82C0FHLbmYvhDuxXB7w_o59ubw_l";
+        // تأكد من نسخ مفتاح anon / public الكامل والصحيح من إعدادات Supabase وضعه هنا
+        const SUPABASE_KEY = "قم_بوضع_مفتاح_anon_public_الصحيح_هنا";
         
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // التحقق من إنشاء العميل بشكل آمن
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) {
+            console.error("Supabase configuration error:", e);
+        }
 
         // وظيفة إظهار وإخفاء لوحة التحكم بحماية بكلمة مرور بسيطة
         function toggleAdminPanel() {
@@ -179,6 +187,7 @@
 
         // جلب البيانات من قاعدة البيانات وعرضها للزوار تلقائياً
         async function loadNews() {
+            if (!supabase) return;
             try {
                 const { data: news, error } = await supabase
                     .from('news')
@@ -208,27 +217,36 @@
         // عملية النشر وإرسال البيانات إلى السيرفر
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!supabase) {
+                alert("لم يتم إعداد سيرفر البيانات بشكل صحيح بعد.");
+                return;
+            }
 
             const title = document.getElementById('newsTitle').value;
             const tag = document.getElementById('newsTag').value;
             const image = document.getElementById('newsImage').value;
             const summary = document.getElementById('newsSummary').value;
 
-            const { error } = await supabase
-                .from('news')
-                .insert([{ title, tag, image, summary }]);
+            try {
+                const { error } = await supabase
+                    .from('news')
+                    .insert([{ title, tag, image, summary }]);
 
-            if (error) {
-                alert("حدث خطأ أثناء النشر: " + error.message);
-            } else {
-                alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس والتقاط وقت النشر تلقائياً!");
-                document.getElementById('newsForm').reset();
-                document.getElementById('adminPanel').style.display = 'none';
-                loadNews(); 
+                if (error) {
+                    alert("حدث خطأ أثناء النشر: " + error.message);
+                } else {
+                    alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس والتقاط وقت النشر تلقائياً!");
+                    document.getElementById('newsForm').reset();
+                    document.getElementById('adminPanel').style.display = 'none';
+                    loadNews(); 
+                }
+            } catch(err) {
+                alert("خطأ في الاتصال: " + err.message);
             }
         });
 
         document.addEventListener('DOMContentLoaded', loadNews);
     </script>
+     
 </body>
 </html>
