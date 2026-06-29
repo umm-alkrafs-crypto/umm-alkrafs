@@ -119,15 +119,11 @@
     <footer>
         <p>جميع الحقوق محفوظة © منصة أم الكرفس الإخبارية 2026</p>
     </footer>
-
-    
-       <script>
+        <script>
         // ربط السيرفر والمفتاح الخاص بك بشكل مباشر وصحيح
         const SUPABASE_URL = "https://euaopeguxbuunqjuulre.supabase.co"; 
-        // تأكد من نسخ مفتاح anon / public الكامل والصحيح من إعدادات Supabase وضعه هنا
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
-        // التحقق من إنشاء العميل بشكل آمن
         let supabase;
         try {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -247,6 +243,6 @@
 
         document.addEventListener('DOMContentLoaded', loadNews);
     </script>
-     
+
 </body>
 </html>
