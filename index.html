@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة أم الكرفس الإخبارية - لوحة التحكم</title>
+    <title>منصة أم الكرفس الإخبارية - نظام آمن</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
@@ -27,15 +27,24 @@
         }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
         .logo { font-size: 24px; font-weight: bold; color: var(--primary-green); text-decoration: none; }
+        .header-buttons { display: flex; gap: 10px; }
         .btn-admin { background: var(--dark-gray); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-logout { background: var(--danger-red); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
 
-        /* لوحة التحكم المخفية */
+        /* لوحة تسجيل الدخول الآمنة */
+        .login-panel {
+            display: none; background: white; max-width: 400px; margin: 30px auto;
+            padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--primary-green);
+        }
+
+        /* لوحة التحكم المخفية للادمن */
         .admin-panel {
             display: none; background: white; max-width: 700px; margin: 30px auto;
             padding: 30px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
             border-top: 6px solid var(--accent-yellow);
         }
-        .admin-panel h2 { margin-bottom: 20px; color: var(--dark-gray); }
+        .admin-panel h2, .login-panel h2 { margin-bottom: 20px; color: var(--dark-gray); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-weight: bold; font-size: 14px; }
         .form-group input, .form-group select, .form-group textarea {
@@ -51,25 +60,23 @@
         .section-title { font-size: 24px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 40px 0 20px 0; }
         .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
         
-        /* البطاقات المحدثة بارتفاع مرن للخبر الكامل */
+        /* البطاقات */
         .news-card {
             background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
             min-height: 440px; height: auto; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: relative; padding-bottom: 50px; /* مساحة ثابتة بالأسفل للتاريخ والأزرار */
+            position: relative; padding-bottom: 50px;
         }
         .card-img { width: 100%; height: 180px; object-fit: cover; }
         .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; }
         .card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
         
-        /* ميزة التحكم بظهور النص */
         .card-text { 
             font-size: 13px; color: #666; line-height: 1.6;
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
         }
         .card-text.expanded { display: block; overflow: visible; -webkit-line-clamp: unset; }
         
-        /* رابط اقرأ المزيد */
         .read-more-btn {
             color: var(--primary-green); font-size: 12px; font-weight: bold; border: none; background: none;
             cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
@@ -100,9 +107,27 @@
     <header>
         <div class="header-container">
             <a href="#" class="logo">☘️ منصة أم الكرفس</a>
-            <button class="btn-admin" onclick="toggleAdminPanel()"><i class="fa-solid fa-user-gear"></i> لوحة النشر</button>
+            <div class="header-buttons">
+                <button class="btn-admin" id="loginNavBtn" onclick="toggleLoginPanel()"><i class="fa-solid fa-lock"></i> تسجيل الدخول</button>
+                <button class="btn-logout" id="logoutBtn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+            </div>
         </div>
     </header>
+
+    <div class="login-panel" id="loginPanel">
+        <h2>🔒 تسجيل دخول الإدارة</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>البريد الإلكتروني الخاص بك:</label>
+                <input type="email" id="loginEmail" required placeholder="example@domain.com">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور المشفرة:</label>
+                <input type="password" id="loginPassword" required placeholder="********">
+            </div>
+            <button type="submit" class="btn-submit">🔓 دخول آمن</button>
+        </form>
+    </div>
 
     <div class="admin-panel" id="adminPanel">
         <h2 id="panelTitle">✍️ إضافة خبر جديد للمنصة</h2>
@@ -110,7 +135,7 @@
             <input type="hidden" id="editNewsId">
             <div class="form-group">
                 <label>عنوان الخبر:</label>
-                <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً ومختصراً...">
+                <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً...">
             </div>
             <div class="form-group">
                 <label>تصنيف الخبر (القسم):</label>
@@ -122,11 +147,11 @@
             </div>
             <div class="form-group">
                 <label>رابط صورة الخبر:</label>
-                <input type="url" id="newsImage" required placeholder="ضع رابط الصورة هنا...">
+                <input type="url" id="newsImage" required placeholder="ضع رابط الصورة المباشر هنا...">
             </div>
             <div class="form-group">
                 <label>نص المقالة / الملخص:</label>
-                <textarea id="newsSummary" rows="6" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
+                <textarea id="newsSummary" rows="6" required placeholder="اكتب تفاصيل الخبر..."></textarea>
             </div>
             <button type="submit" id="submitBtn" class="btn-submit">🚀 نشر الخبر الآن</button>
             <button type="button" id="cancelEditBtn" class="btn-cancel" onclick="resetFormState()">إلغاء التعديل</button>
@@ -159,7 +184,6 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
         let supabaseClient = null;
-        let isAdminLoggedIn = false;
         let allNewsData = [];
 
         function initSupabase() {
@@ -174,30 +198,64 @@
             }
         }
 
-        function toggleAdminPanel() {
-            const panel = document.getElementById('adminPanel');
-            if (panel.style.display === 'block') {
-                panel.style.display = 'none';
-                isAdminLoggedIn = false;
-                resetFormState();
-                updateAdminButtonsVisibility();
+        // فحص حالة تسجيل الدخول وتحديث الواجهة تلقائياً
+        async function checkUserStatus() {
+            if (!supabaseClient) initSupabase();
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            const loginPanel = document.getElementById('loginPanel');
+            const adminPanel = document.getElementById('adminPanel');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginNavBtn = document.getElementById('loginNavBtn');
+
+            if (session) {
+                // المستخدم مسجل دخول حقيقي
+                loginPanel.style.display = 'none';
+                adminPanel.style.display = 'block';
+                logoutBtn.style.display = 'block';
+                loginNavBtn.style.display = 'none';
+                updateAdminButtonsVisibility(true);
             } else {
-                const password = prompt("أدخل كلمة مرور إدارة أم الكرفس لدخول لوحة النشر:");
-                if (password === "2e5y&@") { 
-                    panel.style.display = 'block';
-                    panel.scrollIntoView({ behavior: 'smooth' });
-                    isAdminLoggedIn = true;
-                    updateAdminButtonsVisibility();
-                } else {
-                    alert("كلمة المرور خاطئة!");
-                    isAdminLoggedIn = false;
-                    updateAdminButtonsVisibility();
-                }
+                // زائر عادي
+                adminPanel.style.display = 'none';
+                logoutBtn.style.display = 'none';
+                loginNavBtn.style.display = 'block';
+                updateAdminButtonsVisibility(false);
             }
         }
 
-        function updateAdminButtonsVisibility() {
-            const displayStyle = isAdminLoggedIn ? 'block' : 'none';
+        function toggleLoginPanel() {
+            const loginPanel = document.getElementById('loginPanel');
+            loginPanel.style.display = loginPanel.style.display === 'block' ? 'none' : 'block';
+            if(loginPanel.style.display === 'block') loginPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // معالجة تسجيل الدخول الآمن
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert("فشل تسجيل الدخول: بريد إلكتروني أو باسوورد غير صحيح!");
+            } else {
+                alert("🔓 تم تسجيل الدخول بنجاح تام وبأمان مطلق!");
+                document.getElementById('loginForm').reset();
+                checkUserStatus();
+            }
+        });
+
+        // تسجيل الخروج
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            alert("🔒 تم تسجيل الخروج بنجاح.");
+            checkUserStatus();
+        }
+
+        function updateAdminButtonsVisibility(isLoggedIn) {
+            const displayStyle = isLoggedIn ? 'block' : 'none';
             document.querySelectorAll('.btn-delete').forEach(btn => btn.style.display = displayStyle);
             document.querySelectorAll('.btn-edit').forEach(btn => btn.style.display = displayStyle);
         }
@@ -219,7 +277,6 @@
             return `منذ ${daysPast} أيام`;
         }
 
-        // دالة فتح وإغلاق الخبر الكامل عند الضغط على اقرأ المزيد
         function toggleText(id, btn) {
             const textElement = document.getElementById(`text-${id}`);
             if (textElement.classList.contains('expanded')) {
@@ -231,8 +288,7 @@
             }
         }
 
-        function createCard(item) {
-            // التحقق مما إذا كان النص طويلاً يحتاج لزر "اقرأ المزيد" (تقريباً أكثر من 120 حرف)
+        function createCard(item, sessionActive) {
             const showReadMore = item.summary && item.summary.length > 120;
             const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
 
@@ -248,8 +304,8 @@
                     <div class="card-footer-area">
                         <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
                         <div class="admin-actions">
-                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
-                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
                         </div>
                     </div>
                 </article>
@@ -283,11 +339,10 @@
 
         async function deleteNews(id) {
             if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
-            if (!supabaseClient) initSupabase();
             try {
                 const { error } = await supabaseClient.from('news').delete().eq('id', id);
                 if (error) {
-                    alert("فشل الحذف: " + error.message);
+                    alert("فشل الحذف: سكيورتي السيرفر منع العملية! تأكد من تسجيل دخولك.");
                 } else {
                     alert("🗑️ تم حذف الخبر بنجاح!");
                     loadNews();
@@ -299,9 +354,10 @@
 
         async function loadNews() {
             if (!supabaseClient) initSupabase();
-            if (!supabaseClient) return;
-
             try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const sessionActive = session ? true : false;
+
                 const { data: news, error } = await supabaseClient
                     .from('news')
                     .select('*')
@@ -316,7 +372,7 @@
                 document.getElementById('global-news').innerHTML = "";
 
                 news.forEach(item => {
-                    const cardHtml = createCard(item);
+                    const cardHtml = createCard(item, sessionActive);
                     if (item.tag === "أم الكرفس") {
                         document.getElementById('zone-news').innerHTML += cardHtml;
                     } else if (item.tag === "محلي") {
@@ -332,7 +388,6 @@
 
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!supabaseClient) initSupabase();
 
             const id = document.getElementById('editNewsId').value;
             const title = document.getElementById('newsTitle').value;
@@ -348,12 +403,10 @@
                         .eq('id', id);
 
                     if (error) {
-                        alert("حدث خطأ أثناء التحديث: " + error.message);
+                        alert("سكيورتي السيرفر رفض التعديل: " + error.message);
                     } else {
                         alert("🔄 تم تحديث الخبر بنجاح في منصة أم الكرفس!");
                         resetFormState();
-                        document.getElementById('adminPanel').style.display = 'none';
-                        isAdminLoggedIn = false;
                         loadNews(); 
                     }
                 } else {
@@ -362,12 +415,10 @@
                         .insert([{ title, tag, image, summary }]);
 
                     if (error) {
-                        alert("حدث خطأ أثناء النشر: " + error.message);
+                        alert("سكيورتي السيرفر رفض النشر المباشر! تأكد من تسجيل دخولك أولاً.");
                     } else {
-                        alert("🚀 تم نشر الخبر بنجاح!");
+                        alert("🚀 تم نشر الخبر بنجاح وبأمان كامل!");
                         resetFormState();
-                        document.getElementById('adminPanel').style.display = 'none';
-                        isAdminLoggedIn = false;
                         loadNews(); 
                     }
                 }
@@ -376,8 +427,9 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             initSupabase();
+            await checkUserStatus();
             loadNews();
         });
     </script>
