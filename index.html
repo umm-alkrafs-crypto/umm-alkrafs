@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة أم الكرفس الإخبارية</title>
-    <!-- تضمين مكتبة Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -14,7 +13,6 @@
             --card-bg: #ffffff;
             --text-color: #1b5e20;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
@@ -22,7 +20,6 @@
             margin: 0;
             padding: 0;
         }
-
         header {
             background-color: var(--primary-color);
             color: white;
@@ -31,7 +28,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: relative;
         }
-
         header h1 {
             margin: 0;
             font-size: 2.5rem;
@@ -39,7 +35,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-
         #secret-login-trigger {
             display: none;
             position: absolute;
@@ -53,13 +48,11 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         .container {
             max-width: 800px;
             margin: 30px auto;
             padding: 0 20px;
         }
-
         .auth-container {
             display: none;
             background: var(--card-bg);
@@ -69,12 +62,6 @@
             margin-bottom: 30px;
             border: 2px solid var(--primary-color);
         }
-
-        .auth-container h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-        }
-
         .auth-container input {
             width: 100%;
             padding: 10px;
@@ -83,7 +70,6 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-
         #admin-panel {
             display: none;
             background: var(--card-bg);
@@ -92,18 +78,15 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
             color: var(--text-color);
         }
-
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 10px;
@@ -111,7 +94,6 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-
         button {
             background-color: var(--primary-color);
             color: white;
@@ -123,19 +105,13 @@
             font-weight: bold;
             width: 100%;
         }
-
         button:hover {
             background-color: var(--secondary-color);
         }
-
         .logout-btn {
             background-color: #d32f2f;
             margin-top: 10px;
         }
-        .logout-btn:hover {
-            background-color: #c62828;
-        }
-
         .news-card {
             background: var(--card-bg);
             border-radius: 10px;
@@ -145,34 +121,28 @@
             border-right: 5px solid var(--primary-color);
             position: relative;
         }
-
         .news-img {
             width: 100%;
             max-height: 400px;
             object-fit: cover;
         }
-
         .news-content {
             padding: 20px;
         }
-
         .news-title {
             margin: 0 0 10px 0;
             color: var(--text-color);
             font-size: 1.8rem;
         }
-
         .news-summary {
             color: #555;
             line-height: 1.6;
         }
-
         .news-date {
             font-size: 0.85rem;
             color: #888;
             margin-top: 15px;
         }
-
         .delete-news-btn {
             position: absolute;
             top: 10px;
@@ -196,7 +166,6 @@
     </header>
 
     <div class="container">
-        
         <div id="auth-form" class="auth-container">
             <h2>تسجيل دخول الإدارة</h2>
             <input type="email" id="login-email" placeholder="البريد الإلكتروني">
@@ -229,6 +198,8 @@
 
     <script>
         const SUPABASE_URL = "https://umm-alkrafs-cryptoband.supabase.co";
+        
+        // المفتاح البرمي الصحيح بالأرقام الإنجليزية الصافية لمنع أي تعليق
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtbS1hbGtyYWZzLWNyeXB0b2JhbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1MTI0MTE5MSwiZXhwIjoyMDY2ODE3MTkxfQ.E1eZ7-S0-rPclP8X5z_R4U6XmI2G4vRIn7z7U3pE67I";
         
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -242,8 +213,7 @@
             clickTimeout = setTimeout(() => { clickCount = 0; }, 3000);
 
             if (clickCount === 5) {
-                const triggerBtn = document.getElementById('secret-login-trigger');
-                triggerBtn.style.display = 'block';
+                document.getElementById('secret-login-trigger').style.display = 'block';
                 alert('🔓 تم إظهار زر تسجيل الدخول بنجاح!');
                 clickCount = 0;
             }
@@ -257,13 +227,11 @@
         async function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
-                alert('خطأ في بيانات الدخول! حاول مجدداً.');
+                alert('خطأ في البيانات!');
             } else {
-                alert('أهلاً بك يا مدير! تم التحقق بنجاح 🔓');
+                alert('أهلاً بك يا مدير! 🔓');
                 document.getElementById('auth-form').style.display = 'none';
                 document.getElementById('secret-login-trigger').style.display = 'none';
                 checkUser();
@@ -272,8 +240,6 @@
 
         async function logout() {
             await supabase.auth.signOut();
-            alert('تم قفل لوحة التحكم وتأمين المنصة بنجاح 🔒');
-            document.getElementById('admin-panel').style.display = 'none';
             location.reload();
         }
 
@@ -289,7 +255,6 @@
 
         async function loadNews(isAdmin) {
             const feed = document.getElementById('news-feed');
-            
             try {
                 const { data: news, error } = await supabase
                     .from('news')
@@ -313,9 +278,8 @@
                 feed.innerHTML = '';
                 news.forEach(item => {
                     const date = item.created_at ? new Date(item.created_at).toLocaleDateString('ar-EG') : 'اليوم';
-                    let imgTag = item.image ? `<img class="news-img" src="${item.image}" alt="صورة الخبر">` : '';
+                    let imgTag = item.image ? `<img class="news-img" src="${item.image}">` : '';
                     let deleteBtn = isAdmin ? `<button class="delete-news-btn" onclick="deleteNews(${item.id})">حذف 🗑️</button>` : '';
-
                     feed.innerHTML += `
                         <div class="news-card">
                             ${deleteBtn}
@@ -329,7 +293,7 @@
                     `;
                 });
             } catch (err) {
-                feed.innerHTML = `<p style="text-align:center; color:red;">خطأ غير متوقع: ${err.message}</p>`;
+                feed.innerHTML = `<p style="text-align:center; color:red;">خطأ: ${err.message}</p>`;
             }
         }
 
@@ -337,20 +301,13 @@
             const title = document.getElementById('news-title').value;
             const summary = document.getElementById('news-summary').value;
             const image = document.getElementById('news-image').value;
-
-            if (!title || !summary) {
-                alert('من فضلك املأ العنوان والتفاصيل أولاً!');
-                return;
-            }
-
-            const { error } = await supabase
-                .from('news')
-                .insert([{ title, summary, image }]);
-
+            if (!title || !summary) return alert('املأ الحقول أولاً!');
+            
+            const { error } = await supabase.from('news').insert([{ title, summary, image }]);
             if (error) {
                 alert('فشل النشر: ' + error.message);
             } else {
-                alert('تم نشر الخبر بنجاح كبير! 🎉');
+                alert('تم النشر! 🎉');
                 document.getElementById('news-title').value = '';
                 document.getElementById('news-summary').value = '';
                 document.getElementById('news-image').value = '';
@@ -359,18 +316,9 @@
         }
 
         async function deleteNews(id) {
-            if (confirm('هل أنت متأكد من رغبتك في حذف هذا الخبر نهائياً؟')) {
-                const { error } = await supabase
-                    .from('news')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) {
-                    alert('فشل في الحذف!');
-                } else {
-                    alert('تم حذف الخبر بنجاح.');
-                    checkUser();
-                }
+            if (confirm('هل تريد الحذف؟')) {
+                await supabase.from('news').delete().eq('id', id);
+                checkUser();
             }
         }
 
