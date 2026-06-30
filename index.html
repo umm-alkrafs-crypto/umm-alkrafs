@@ -27,12 +27,18 @@
         }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
         .logo { font-size: 24px; font-weight: bold; color: var(--primary-green); text-decoration: none; }
-        .header-buttons { display: flex; gap: 10px; }
         
-        /* تعديل الزر ليصبح مُموّهاً تماماً بلون خلفية الهيدر البيضاء */
+        /* أيقونات التواصل الاجتماعي */
+        .social-media-icons { display: flex; gap: 15px; font-size: 18px; }
+        .social-media-icons a { color: var(--dark-gray); transition: 0.3s; }
+        .social-media-icons a:hover { color: var(--primary-green); }
+
+        .header-buttons { display: flex; gap: 10px; align-items: center; }
+        
+        /* زر الإدارة المموه بالكامل بلون الهيدر الأبيض */
         .btn-admin { 
-            background: var(--white); /* نفس لون خلفية الشريط */
-            color: var(--white); /* نفس لون الخط والأيقونة لكي تختفي الكلمة */
+            background: var(--white); 
+            color: var(--white); 
             padding: 8px 15px; 
             border: none; 
             border-radius: 5px; 
@@ -44,8 +50,6 @@
             -webkit-user-select: none;
             transition: none;
         }
-        
-        /* إلغاء أي تأثير عند مرور الماوس لمنع انكشافه */
         .btn-admin:hover {
             background: var(--white) !important;
             color: var(--white) !important;
@@ -130,8 +134,15 @@
     <header>
         <div class="header-container">
             <a href="#" class="logo">☘️ منصة أم الكرفس</a>
+            
+            <!-- قسم أيقونات التواصل الاجتماعي الجديد -->
+            <div class="social-media-icons">
+                <a href="#" target="_blank" title="تليجرام"><i class="fa-brands fa-telegram"></i></a>
+                <a href="#" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" target="_blank" title="إكس"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+
             <div class="header-buttons">
-                <!-- الزر أصبح غير مرئي للزوار العاديين لأنه يطابق خلفية الهيدر -->
                 <button class="btn-admin" id="loginNavBtn" onclick="toggleLoginPanel()"><i class="fa-solid fa-lock"></i> تسجيل الدخول</button>
                 <button class="btn-logout" id="logoutBtn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
             </div>
@@ -163,9 +174,13 @@
             </div>
             <div class="form-group">
                 <label>تصنيف الخبر (القسم):</label>
+                <!-- تحديث القائمة المنسدلة لتشمل الأقسام الإضافية -->
                 <select id="newsTag" required>
                     <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
                     <option value="محلي">أخبار محلية</option>
+                    <option value="سياسة">سياسة</option>
+                    <option value="صحة">صحة</option>
+                    <option value="رياضة">رياضة</option>
                     <option value="عالمي">أخبار عالمية</option>
                 </select>
             </div>
@@ -191,6 +206,22 @@
         <section>
             <h2 class="section-title">أخبار محلية</h2>
             <div class="news-grid" id="local-news"></div>
+        </section>
+
+        <!-- الأقسام الجديدة المضافة لعرض البيانات بالقنوات المناسبة -->
+        <section>
+            <h2 class="section-title">سياسة</h2>
+            <div class="news-grid" id="politics-news"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title">صحة</h2>
+            <div class="news-grid" id="health-news"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title">رياضة</h2>
+            <div class="news-grid" id="sports-news"></div>
         </section>
 
         <section>
@@ -388,6 +419,9 @@
 
                 document.getElementById('zone-news').innerHTML = "";
                 document.getElementById('local-news').innerHTML = "";
+                document.getElementById('politics-news').innerHTML = "";
+                document.getElementById('health-news').innerHTML = "";
+                document.getElementById('sports-news').innerHTML = "";
                 document.getElementById('global-news').innerHTML = "";
 
                 news.forEach(item => {
@@ -396,6 +430,12 @@
                         document.getElementById('zone-news').innerHTML += cardHtml;
                     } else if (item.tag === "محلي") {
                         document.getElementById('local-news').innerHTML += cardHtml;
+                    } else if (item.tag === "سياسة") {
+                        document.getElementById('politics-news').innerHTML += cardHtml;
+                    } else if (item.tag === "صحة") {
+                        document.getElementById('health-news').innerHTML += cardHtml;
+                    } else if (item.tag === "رياضة") {
+                        document.getElementById('sports-news').innerHTML += cardHtml;
                     } else if (item.tag === "عالمي") {
                         document.getElementById('global-news').innerHTML += cardHtml;
                     }
