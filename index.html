@@ -1,770 +1,437 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>منصة أم الكرفس الإخبارية - لوحة التحكم</title>
-
+    <title>منصة أم الكرفس الإخبارية - نظام آمن</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
     <style>
-
         :root {
-
             --primary-green: #2ecc71; 
-
             --light-green: #e8f8f5; 
-
             --white: #ffffff;
-
             --dark-gray: #2c3e50;
-
             --accent-yellow: #f1c40f; 
-
             --danger-red: #e74c3c;
-
             --info-blue: #3498db;
-
         }
 
-
-
-•	{ box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-
-        Body { background-color: var(--light-green); color: var(--dark-gray); }
-
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--light-green); color: var(--dark-gray); }
 
         /* الهيدر */
-
-        Header {
-
-            Background-color: var(--white); border-bottom: 4px solid var(--primary-green);
-
-            Position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-
+        header {
+            background-color: var(--white); border-bottom: 4px solid var(--primary-green);
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
-
         .logo { font-size: 24px; font-weight: bold; color: var(--primary-green); text-decoration: none; }
-
+        .header-buttons { display: flex; gap: 10px; }
         .btn-admin { background: var(--dark-gray); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-logout { background: var(--danger-red); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
 
+        /* لوحة تسجيل الدخول الآمنة */
+        .login-panel {
+            display: none; background: white; max-width: 400px; margin: 30px auto;
+            padding: 25px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--primary-green);
+        }
 
-
-        /* لوحة التحكم المخفية */
-
+        /* لوحة التحكم المخفية للادمن */
         .admin-panel {
-
-            Display: none; background: white; max-width: 700px; margin: 30px auto;
-
-            Padding: 30px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-
-            Border-top: 6px solid var(--accent-yellow);
-
+            display: none; background: white; max-width: 700px; margin: 30px auto;
+            padding: 30px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--accent-yellow);
         }
-
-        .admin-panel h2 { margin-bottom: 20px; color: var(--dark-gray); }
-
+        .admin-panel h2, .login-panel h2 { margin-bottom: 20px; color: var(--dark-gray); }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
-
         .form-group label { font-weight: bold; font-size: 14px; }
-
         .form-group input, .form-group select, .form-group textarea {
-
-            Padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; outline: none;
-
+            padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; outline: none;
         }
-
         .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-green); }
-
         .btn-submit { background: var(--primary-green); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
-
         .btn-submit:hover { opacity: 0.9; }
-
         .btn-cancel { background: #95a5a6; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; width: 100%; display: none; }
 
-
-
         /* أقسام الأخبار للزوار */
-
         .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-
         .section-title { font-size: 24px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 40px 0 20px 0; }
-
         .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-
         
-
-        /* البطاقات المحدثة بارتفاع مرن للخبر الكامل */
-
+        /* البطاقات */
         .news-card {
-
-            Background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
-
-            Min-height: 440px; height: auto; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-
-            Position: relative; padding-bottom: 50px; /* مساحة ثابتة بالأسفل للتاريخ والأزرار */
-
+            background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
+            min-height: 440px; height: auto; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative; padding-bottom: 50px;
         }
-
         .card-img { width: 100%; height: 180px; object-fit: cover; }
-
         .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
-
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; }
-
         .card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
-
         
-
-        /* ميزة التحكم بظهور النص */
-
         .card-text { 
-
-            Font-size: 13px; color: #666; line-height: 1.6;
-
-            Display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
-
+            font-size: 13px; color: #666; line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
         }
-
         .card-text.expanded { display: block; overflow: visible; -webkit-line-clamp: unset; }
-
         
-
-        /* رابط اقرأ المزيد */
-
         .read-more-btn {
-
-            Color: var(--primary-green); font-size: 12px; font-weight: bold; border: none; background: none;
-
-            Cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
-
+            color: var(--primary-green); font-size: 12px; font-weight: bold; border: none; background: none;
+            cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
         }
-
-
 
         .card-footer-area {
-
-            Position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 15px;
-
-            Border-top: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: center;
-
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 15px;
+            border-top: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: center;
         }
-
         .card-date { font-size: 11px; color: #999; }
-
         
-
         /* أزرار التحكم السرية */
-
         .admin-actions { display: flex; gap: 5px; }
-
         .btn-delete {
-
-            Display: none; background: var(--danger-red); color: white; border: none;
-
-            Padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
-
+            display: none; background: var(--danger-red); color: white; border: none;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
         }
-
         .btn-edit {
-
-            Display: none; background: var(--info-blue); color: white; border: none;
-
-            Padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
-
+            display: none; background: var(--info-blue); color: white; border: none;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
         }
 
-
-
-        Footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
-
+        footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
     </style>
-
 </head>
-
 <body>
 
-
-
     <header>
-
         <div class="header-container">
-
             <a href="#" class="logo">☘️ منصة أم الكرفس</a>
-
-            <button class="btn-admin" onclick="toggleAdminPanel()"><I class="fa-solid fa-user-gear"></i> لوحة النشر</button>
-
+            <div class="header-buttons">
+                <button class="btn-admin" id="loginNavBtn" onclick="toggleLoginPanel()"><i class="fa-solid fa-lock"></i> تسجيل الدخول</button>
+                <button class="btn-logout" id="logoutBtn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+            </div>
         </div>
-
     </header>
 
-
-
-    <div class="admin-panel" id="adminPanel">
-
-        <h2 id="panelTitle">✍️ إضافة خبر جديد للمنصة</h2>
-
-        <form id="newsForm">
-
-            <input type="hidden" id="editNewsId">
-
+    <div class="login-panel" id="loginPanel">
+        <h2>🔒 تسجيل دخول الإدارة</h2>
+        <form id="loginForm">
             <div class="form-group">
-
-                <label>عنوان الخبر:</label>
-
-                <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً ومختصراً...">
-
+                <label>البريد الإلكتروني الخاص بك:</label>
+                <input type="email" id="loginEmail" required placeholder="example@domain.com">
             </div>
-
             <div class="form-group">
-
-                <label>تصنيف الخبر (القسم):</label>
-
-                <select id="newsTag" required>
-
-                    <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
-
-                    <option value="محلي">أخبار محلية</option>
-
-                    <option value="عالمي">أخبار عالمية</option>
-
-                </select>
-
+                <label>كلمة المرور المشفرة:</label>
+                <input type="password" id="loginPassword" required placeholder="********">
             </div>
-
-            <div class="form-group">
-
-                <label>رابط صورة الخبر:</label>
-
-                <input type="url" id="newsImage" required placeholder="ضع رابط الصورة هنا...">
-
-            </div>
-
-            <div class="form-group">
-
-                <label>نص المقالة / الملخص:</label>
-
-                <textarea id="newsSummary" rows="6" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
-
-            </div>
-
-            <button type="submit" id="submitBtn" class="btn-submit">🚀 نشر الخبر الآن</button>
-
-            <button type="button" id="cancelEditBtn" class="btn-cancel" onclick="resetFormState()">إلغاء التعديل</button>
-
+            <button type="submit" class="btn-submit">🔓 دخول آمن</button>
         </form>
-
     </div>
 
-
+    <div class="admin-panel" id="adminPanel">
+        <h2 id="panelTitle">✍️ إضافة خبر جديد للمنصة</h2>
+        <form id="newsForm">
+            <input type="hidden" id="editNewsId">
+            <div class="form-group">
+                <label>عنوان الخبر:</label>
+                <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً...">
+            </div>
+            <div class="form-group">
+                <label>تصنيف الخبر (القسم):</label>
+                <select id="newsTag" required>
+                    <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
+                    <option value="محلي">أخبار محلية</option>
+                    <option value="عالمي">أخبار عالمية</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>رابط صورة الخبر:</label>
+                <input type="url" id="newsImage" required placeholder="ضع رابط الصورة المباشر هنا...">
+            </div>
+            <div class="form-group">
+                <label>نص المقالة / الملخص:</label>
+                <textarea id="newsSummary" rows="6" required placeholder="اكتب تفاصيل الخبر..."></textarea>
+            </div>
+            <button type="submit" id="submitBtn" class="btn-submit">🚀 نشر الخبر الآن</button>
+            <button type="button" id="cancelEditBtn" class="btn-cancel" onclick="resetFormState()">إلغاء التعديل</button>
+        </form>
+    </div>
 
     <main class="main-container">
-
         <section>
-
             <h2 class="section-title">أخبار المنطقة</h2>
-
             <div class="news-grid" id="zone-news"></div>
-
         </section>
 
-
-
         <section>
-
             <h2 class="section-title">أخبار محلية</h2>
-
             <div class="news-grid" id="local-news"></div>
-
         </section>
-
-
 
         <section>
-
             <h2 class="section-title">أخبار عالمية</h2>
-
             <div class="news-grid" id="global-news"></div>
-
         </section>
-
     </main>
 
-
-
     <footer>
-
         <p>جميع الحقوق محفوظة © منصة أم الكرفس الإخبارية 2026</p>
-
     </footer>
 
-
-
     <script>
-
-        Const SUPABASE_URL = https://euaopeguxbuunqjuulre.supabase.co; 
-
-        Const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
-
+        const SUPABASE_URL = "https://euaopeguxbuunqjuulre.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
+        let supabaseClient = null;
+        let allNewsData = [];
 
-        Let supabaseClient = null;
-
-        Let isAdminLoggedIn = false;
-
-        Let allNewsData = [];
-
-
-
-        Function initSupabase() {
-
-            Try {
-
-                If (window.supabase && typeof window.supabase.createClient === 'function') {
-
+        function initSupabase() {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
                     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
                 } else if (window.Supabase && typeof window.Supabase.createClient === 'function') {
-
                     supabaseClient = window.Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
                 }
-
-            } catch€ {
-
-                Console.error("Supabase failed to initialize:", e);
-
+            } catch(e) {
+                console.error("Supabase failed to initialize:", e);
             }
-
         }
 
+        // فحص حالة تسجيل الدخول وتحديث الواجهة تلقائياً
+        async function checkUserStatus() {
+            if (!supabaseClient) initSupabase();
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            const loginPanel = document.getElementById('loginPanel');
+            const adminPanel = document.getElementById('adminPanel');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginNavBtn = document.getElementById('loginNavBtn');
 
-
-        Function toggleAdminPanel() {
-
-            Const panel = document.getElementById('adminPanel');
-
-            If (panel.style.display === 'block') {
-
-                Panel.style.display = 'none';
-
-                isAdminLoggedIn = false;
-
-                resetFormState();
-
-                updateAdminButtonsVisibility();
-
+            if (session) {
+                // المستخدم مسجل دخول حقيقي
+                loginPanel.style.display = 'none';
+                adminPanel.style.display = 'block';
+                logoutBtn.style.display = 'block';
+                loginNavBtn.style.display = 'none';
+                updateAdminButtonsVisibility(true);
             } else {
-
-                Const password = prompt("أدخل كلمة مرور إدارة أم الكرفس لدخول لوحة النشر:");
-
-                If (password === "2e5y&@") { 
-
-                    Panel.style.display = 'block';
-
-                    Panel.scrollIntoView({ behavior: 'smooth' });
-
-                    isAdminLoggedIn = true;
-
-                    updateAdminButtonsVisibility();
-
-                } else {
-
-                    Alert("كلمة المرور خاطئة!");
-
-                    isAdminLoggedIn = false;
-
-                    updateAdminButtonsVisibility();
-
-                }
-
+                // زائر عادي
+                adminPanel.style.display = 'none';
+                logoutBtn.style.display = 'none';
+                loginNavBtn.style.display = 'block';
+                updateAdminButtonsVisibility(false);
             }
-
         }
 
-
-
-        Function updateAdminButtonsVisibility() {
-
-            Const displayStyle = isAdminLoggedIn ? 'block' : 'none';
-
-            Document.querySelectorAll('.btn-delete').forEach(btn => btn.style.display = displayStyle);
-
-            Document.querySelectorAll('.btn-edit').forEach(btn => btn.style.display = displayStyle);
-
+        function toggleLoginPanel() {
+            const loginPanel = document.getElementById('loginPanel');
+            loginPanel.style.display = loginPanel.style.display === 'block' ? 'none' : 'block';
+            if(loginPanel.style.display === 'block') loginPanel.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // معالجة تسجيل الدخول الآمن
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-        Function timeAgo(dateString) {
+            if (error) {
+                alert("فشل تسجيل الدخول: بريد إلكتروني أو باسوورد غير صحيح!");
+            } else {
+                alert("🔓 تم تسجيل الدخول بنجاح تام وبأمان مطلق!");
+                document.getElementById('loginForm').reset();
+                checkUserStatus();
+            }
+        });
 
-            Const now = new Date();
-
-            Const postDate = new Date(dateString);
-
-            Const secondsPast = Math.floor((now – postDate) / 1000);
-
-
-
-            If (secondsPast < 0) return 'قبل قليل';
-
-            If (secondsPast < 60) return 'منذ ثوانٍ';
-
-            Const minutesPast = Math.floor(secondsPast / 60);
-
-            If (minutesPast < 60) return `منذ ${minutesPast} دقيقة`;
-
-            Const hoursPast = Math.floor(minutesPast / 60);
-
-            If (hoursPast < 24) return `منذ ${hoursPast} ساعة`;
-
-            Const daysPast = Math.floor(hoursPast / 24);
-
-            If (daysPast === 1) return 'أمس';
-
-            If (daysPast === 2) return 'منذ يومين';
-
-            Return `منذ ${daysPast} أيام`;
-
+        // تسجيل الخروج
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            alert("🔒 تم تسجيل الخروج بنجاح.");
+            checkUserStatus();
         }
 
+        function updateAdminButtonsVisibility(isLoggedIn) {
+            const displayStyle = isLoggedIn ? 'block' : 'none';
+            document.querySelectorAll('.btn-delete').forEach(btn => btn.style.display = displayStyle);
+            document.querySelectorAll('.btn-edit').forEach(btn => btn.style.display = displayStyle);
+        }
 
+        function timeAgo(dateString) {
+            const now = new Date();
+            const postDate = new Date(dateString);
+            const secondsPast = Math.floor((now - postDate) / 1000);
 
-        // دالة فتح وإغلاق الخبر الكامل عند الضغط على اقرأ المزيد
+            if (secondsPast < 0) return 'قبل قليل';
+            if (secondsPast < 60) return 'منذ ثوانٍ';
+            const minutesPast = Math.floor(secondsPast / 60);
+            if (minutesPast < 60) return `منذ ${minutesPast} دقيقة`;
+            const hoursPast = Math.floor(minutesPast / 60);
+            if (hoursPast < 24) return `منذ ${hoursPast} ساعة`;
+            const daysPast = Math.floor(hoursPast / 24);
+            if (daysPast === 1) return 'أمس';
+            if (daysPast === 2) return 'منذ يومين';
+            return `منذ ${daysPast} أيام`;
+        }
 
-        Function toggleText(id, btn) {
-
-            Const textElement = document.getElementById(`text-${id}`);
-
-            If (textElement.classList.contains('expanded')) {
-
+        function toggleText(id, btn) {
+            const textElement = document.getElementById(`text-${id}`);
+            if (textElement.classList.contains('expanded')) {
                 textElement.classList.remove('expanded');
-
                 btn.innerText = "اقرأ المزيد...";
-
             } else {
-
                 textElement.classList.add('expanded');
-
                 btn.innerText = "عرض أقل";
-
             }
-
         }
 
+        function createCard(item, sessionActive) {
+            const showReadMore = item.summary && item.summary.length > 120;
+            const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
 
-
-        Function createCard(item) {
-
-            // التحقق مما إذا كان النص طويلاً يحتاج لزر "اقرأ المزيد" (تقريباً أكثر من 120 حرف)
-
-            Const showReadMore = item.summary && item.summary.length > 120;
-
-            Const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${Item.id}, this)">اقرأ المزيد...</button>` : '';
-
-
-
-            Return `
-
+            return `
                 <article class="news-card" id="card-${item.id}">
-
                     <img class="card-img" src="${item.image}" alt="${item.title}">
-
                     <div class="card-content">
-
                         <span class="card-tag">${item.tag}</span>
-
                         <h3 class="card-title">${item.title}</h3>
-
                         <p class="card-text" id="text-${item.id}">${item.summary}</p>
-
                         ${readMoreBtnHtml}
-
                     </div>
-
                     <div class="card-footer-area">
-
                         <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
-
                         <div class="admin-actions">
-
-                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><I class="fa-solid fa-pen-to-square"></i> تعديل</button>
-
-                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><I class="fa-solid fa-trash"></i> حذف</button>
-
+                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
                         </div>
-
                     </div>
-
                 </article>
-
             `;
-
         }
 
+        function prepareEdit(id) {
+            const item = allNewsData.find(news => news.id === id);
+            if (!item) return;
 
+            document.getElementById('editNewsId').value = item.id;
+            document.getElementById('newsTitle').value = item.title;
+            document.getElementById('newsTag').value = item.tag;
+            document.getElementById('newsImage').value = item.image;
+            document.getElementById('newsSummary').value = item.summary;
 
-        Function prepareEdit(id) {
+            document.getElementById('panelTitle').innerText = "📝 تعديل الخبر الحالي";
+            document.getElementById('submitBtn').innerText = "🔄 تحديث الخبر الآن";
+            document.getElementById('cancelEditBtn').style.display = "block";
 
-            Const item = allNewsData.find(news => news.id === Id);
-
-            If (!item) return;
-
-
-
-            Document.getElementById('editNewsId').value = item.id;
-
-            Document.getElementById('newsTitle').value = item.title;
-
-            Document.getElementById('newsTag').value = item.tag;
-
-            Document.getElementById('newsImage').value = item.image;
-
-            Document.getElementById('newsSummary').value = item.summary;
-
-
-
-            Document.getElementById('panelTitle').innerText = "📝 تعديل الخبر الحالي";
-
-            Document.getElementById('submitBtn').innerText = "🔄 تحديث الخبر الآن";
-
-            Document.getElementById('cancelEditBtn').style.display = "block";
-
-
-
-            Document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
-
+            document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
         }
 
-
-
-        Function resetFormState() {
-
-            Document.getElementById('newsForm').reset();
-
-            Document.getElementById('editNewsId').value = "";
-
-            Document.getElementById('panelTitle').innerText = "✍️ إضافة خبر جديد للمنصة";
-
-            Document.getElementById('submitBtn').innerText = "🚀 نشر الخبر الآن";
-
-            Document.getElementById('cancelEditBtn').style.display = "none";
-
+        function resetFormState() {
+            document.getElementById('newsForm').reset();
+            document.getElementById('editNewsId').value = "";
+            document.getElementById('panelTitle').innerText = "✍️ إضافة خبر جديد للمنصة";
+            document.getElementById('submitBtn').innerText = "🚀 نشر الخبر الآن";
+            document.getElementById('cancelEditBtn').style.display = "none";
         }
 
-
-
-        Async function deleteNews(id) {
-
-            If (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
-
-            If (!supabaseClient) initSupabase();
-
-            Try {
-
-                Const { error } = await supabaseClient.from('news').delete().eq('id', id);
-
-                If (error) {
-
-                    Alert("فشل الحذف: " + error.message);
-
+        async function deleteNews(id) {
+            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
+            try {
+                const { error } = await supabaseClient.from('news').delete().eq('id', id);
+                if (error) {
+                    alert("فشل الحذف: سكيورتي السيرفر منع العملية! تأكد من تسجيل دخولك.");
                 } else {
-
-                    Alert("🗑️ تم حذف الخبر بنجاح!");
-
+                    alert("🗑️ تم حذف الخبر بنجاح!");
                     loadNews();
-
                 }
-
             } catch (err) {
-
-                Alert("خطأ في الاتصال: " + err.message);
-
+                alert("خطأ في الاتصال: " + err.message);
             }
-
         }
 
+        async function loadNews() {
+            if (!supabaseClient) initSupabase();
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const sessionActive = session ? true : false;
 
-
-        Async function loadNews() {
-
-            If (!supabaseClient) initSupabase();
-
-            If (!supabaseClient) return;
-
-
-
-            Try {
-
-                Const { data: news, error } = await supabaseClient
-
+                const { data: news, error } = await supabaseClient
                     .from('news')
-
                     .select('*')
-
                     .order('created_at', { ascending: false });
 
-
-
-                If (error) throw error;
-
-
+                if (error) throw error;
 
                 allNewsData = news;
 
-
-
                 document.getElementById('zone-news').innerHTML = "";
-
                 document.getElementById('local-news').innerHTML = "";
-
                 document.getElementById('global-news').innerHTML = "";
 
-
-
                 news.forEach(item => {
-
-                    const cardHtml = createCard(item);
-
+                    const cardHtml = createCard(item, sessionActive);
                     if (item.tag === "أم الكرفس") {
-
                         document.getElementById('zone-news').innerHTML += cardHtml;
-
                     } else if (item.tag === "محلي") {
-
-                        Document.getElementById('local-news').innerHTML += cardHtml;
-
+                        document.getElementById('local-news').innerHTML += cardHtml;
                     } else if (item.tag === "عالمي") {
-
-                        Document.getElementById('global-news').innerHTML += cardHtml;
-
+                        document.getElementById('global-news').innerHTML += cardHtml;
                     }
-
                 });
-
             } catch (err) {
-
-                Console.error("Error loading news:", err.message);
-
+                console.error("Error loading news:", err.message);
             }
-
         }
 
-
-
-        Document.getElementById('newsForm').addEventListener('submit', async € => {
-
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            if (!supabaseClient) initSupabase();
-
-
-
             const id = document.getElementById('editNewsId').value;
-
             const title = document.getElementById('newsTitle').value;
-
             const tag = document.getElementById('newsTag').value;
-
             const image = document.getElementById('newsImage').value;
-
             const summary = document.getElementById('newsSummary').value;
 
-
-
             try {
-
-                If (id) {
-
-                    Const { error } = await supabaseClient
-
+                if (id) {
+                    const { error } = await supabaseClient
                         .from('news')
-
                         .update({ title, tag, image, summary })
+                        .eq('id', id);
 
-                        .eq('id', Id);
-
-
-
-                    If (error) {
-
-                        Alert("حدث خطأ أثناء التحديث: " + error.message);
-
+                    if (error) {
+                        alert("سكيورتي السيرفر رفض التعديل: " + error.message);
                     } else {
-
-                        Alert("🔄 تم تحديث الخبر بنجاح في منصة أم الكرفس!");
-
+                        alert("🔄 تم تحديث الخبر بنجاح في منصة أم الكرفس!");
                         resetFormState();
-
-                        document.getElementById('adminPanel').style.display = 'none';
-
-                        isAdminLoggedIn = false;
-
                         loadNews(); 
-
                     }
-
                 } else {
-
-                    Const { error } = await supabaseClient
-
+                    const { error } = await supabaseClient
                         .from('news')
-
                         .insert([{ title, tag, image, summary }]);
 
-
-
-                    If (error) {
-
-                        Alert("حدث خطأ أثناء النشر: " + error.message);
-
+                    if (error) {
+                        alert("سكيورتي السيرفر رفض النشر المباشر! تأكد من تسجيل دخولك أولاً.");
                     } else {
-
-                        Alert("🚀 تم نشر الخبر بنجاح!");
-
+                        alert("🚀 تم نشر الخبر بنجاح وبأمان كامل!");
                         resetFormState();
-
-                        document.getElementById('adminPanel').style.display = 'none';
-
-                        isAdminLoggedIn = false;
-
                         loadNews(); 
-
                     }
-
                 }
-
             } catch(err) {
-
-                Alert("خطأ في الاتصال: " + err.message);
-
+                alert("خطأ في الاتصال: " + err.message);
             }
-
         });
 
-
-
-        Window.addEventListener('DOMContentLoaded', () => {
-
+        window.addEventListener('DOMContentLoaded', async () => {
             initSupabase();
-
+            await checkUserStatus();
             loadNews();
-
         });
-
     </script>
-
 </body>
-
 </html>
-
