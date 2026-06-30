@@ -199,10 +199,15 @@
     <script>
         const SUPABASE_URL = "https://umm-alkrafs-cryptoband.supabase.co";
         
-        // المفتاح البرمي الصحيح بالأرقام الإنجليزية الصافية لمنع أي تعليق
+        // تم تصحيح المفتاح تماماً وإزالة الأرقام العربية التالفة الناتجة عن النسخ
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtbS1hbGtyYWZzLWNyeXB0b2JhbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1MTI0MTE5MSwiZXhwIjoyMDY2ODE3MTkxfQ.E1eZ7-S0-rPclP8X5z_R4U6XmI2G4vRIn7z7U3pE67I";
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabase;
+        try {
+            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (e) {
+            document.getElementById('news-feed').innerHTML = `<p style="color:red; text-align:center;">خطأ في تحميل مكتبة الاتصال: ${e.message}</p>`;
+        }
 
         let clickCount = 0;
         let clickTimeout;
@@ -229,7 +234,7 @@
             const password = document.getElementById('login-password').value;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
-                alert('خطأ في البيانات!');
+                alert('خطأ في البيانات: ' + error.message);
             } else {
                 alert('أهلاً بك يا مدير! 🔓');
                 document.getElementById('auth-form').style.display = 'none';
@@ -244,6 +249,7 @@
         }
 
         async function checkUser() {
+            if (!supabase) return;
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 document.getElementById('admin-panel').style.display = 'block';
@@ -255,6 +261,7 @@
 
         async function loadNews(isAdmin) {
             const feed = document.getElementById('news-feed');
+            if (!supabase) return;
             try {
                 const { data: news, error } = await supabase
                     .from('news')
