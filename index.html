@@ -28,7 +28,30 @@
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
         .logo { font-size: 24px; font-weight: bold; color: var(--primary-green); text-decoration: none; }
         .header-buttons { display: flex; gap: 10px; }
-        .btn-admin { background: var(--dark-gray); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* تعديل الزر ليصبح مُموّهاً تماماً بلون خلفية الهيدر البيضاء */
+        .btn-admin { 
+            background: var(--white); /* نفس لون خلفية الشريط */
+            color: var(--white); /* نفس لون الخط والأيقونة لكي تختفي الكلمة */
+            padding: 8px 15px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            outline: none;
+            box-shadow: none;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: none;
+        }
+        
+        /* إلغاء أي تأثير عند مرور الماوس لمنع انكشافه */
+        .btn-admin:hover {
+            background: var(--white) !important;
+            color: var(--white) !important;
+            opacity: 1 !important;
+        }
+        
         .btn-logout { background: var(--danger-red); color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; display: none; }
 
         /* لوحة تسجيل الدخول الآمنة */
@@ -108,6 +131,7 @@
         <div class="header-container">
             <a href="#" class="logo">☘️ منصة أم الكرفس</a>
             <div class="header-buttons">
+                <!-- الزر أصبح غير مرئي للزوار العاديين لأنه يطابق خلفية الهيدر -->
                 <button class="btn-admin" id="loginNavBtn" onclick="toggleLoginPanel()"><i class="fa-solid fa-lock"></i> تسجيل الدخول</button>
                 <button class="btn-logout" id="logoutBtn" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
             </div>
@@ -198,7 +222,6 @@
             }
         }
 
-        // فحص حالة تسجيل الدخول وتحديث الواجهة تلقائياً
         async function checkUserStatus() {
             if (!supabaseClient) initSupabase();
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -209,14 +232,12 @@
             const loginNavBtn = document.getElementById('loginNavBtn');
 
             if (session) {
-                // المستخدم مسجل دخول حقيقي
                 loginPanel.style.display = 'none';
                 adminPanel.style.display = 'block';
                 logoutBtn.style.display = 'block';
                 loginNavBtn.style.display = 'none';
                 updateAdminButtonsVisibility(true);
             } else {
-                // زائر عادي
                 adminPanel.style.display = 'none';
                 logoutBtn.style.display = 'none';
                 loginNavBtn.style.display = 'block';
@@ -230,7 +251,6 @@
             if(loginPanel.style.display === 'block') loginPanel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // معالجة تسجيل الدخول الآمن
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -247,7 +267,6 @@
             }
         });
 
-        // تسجيل الخروج
         async function handleLogout() {
             await supabaseClient.auth.signOut();
             alert("🔒 تم تسجيل الخروج بنجاح.");
