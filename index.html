@@ -14,6 +14,7 @@
             --dark-gray: #2c3e50;
             --accent-yellow: #f1c40f; 
             --danger-red: #e74c3c;
+            --info-blue: #3498db;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -41,8 +42,9 @@
             padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; outline: none;
         }
         .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-green); }
-        .btn-submit { background: var(--primary-green); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit { background: var(--primary-green); color: white; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
         .btn-submit:hover { opacity: 0.9; }
+        .btn-cancel { background: #95a5a6; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; width: 100%; display: none; }
 
         /* أقسام الأخبار للزوار */
         .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
@@ -52,7 +54,7 @@
         /* البطاقات */
         .news-card {
             background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
-            height: 450px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 460px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             position: relative;
         }
         .card-img { width: 100%; height: 180px; object-fit: cover; }
@@ -62,10 +64,15 @@
         .card-text { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
         .card-date { font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* زر الحذف السري */
+        /* أزرار التحكم السرية */
+        .admin-actions { display: flex; gap: 5px; }
         .btn-delete {
             display: none; background: var(--danger-red); color: white; border: none;
-            padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
+        }
+        .btn-edit {
+            display: none; background: var(--info-blue); color: white; border: none;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
         }
 
         footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
@@ -81,9 +88,9 @@
     </header>
 
     <div class="admin-panel" id="adminPanel">
-        <h2>✍️ إضافة خبر جديد للمنصة</h2>
+        <h2 id="panelTitle">✍️ إضافة خبر جديد للمنصة</h2>
         <form id="newsForm">
-            <div class="form-group">
+            <input type="hidden" id="editNewsId"> <div class="form-group">
                 <label>عنوان الخبر:</label>
                 <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً ومختصراً...">
             </div>
@@ -103,7 +110,8 @@
                 <label>نص المقالة / الملخص:</label>
                 <textarea id="newsSummary" rows="4" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
             </div>
-            <button type="submit" class="btn-submit">🚀 نشر الخبر الآن</button>
+            <button type="submit" id="submitBtn" class="btn-submit">🚀 نشر الخبر الآن</button>
+            <button type="button" id="cancelEditBtn" class="btn-cancel" onclick="resetFormState()">إلغاء التعديل</button>
         </form>
     </div>
 
@@ -133,7 +141,8 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1YW9wZWd1eGJ1dW5xanV1bHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NTgyODcsImV4cCI6MjA5ODMzNDI4N30.zQBUcYR-QNXcPE0mxsuEeUz2JpmEENga73lDY9FsCf4";
         
         let supabaseClient = null;
-        let isAdminLoggedIn = false; // متغير لمعرفة هل المشرف سجل دخوله أم لا
+        let isAdminLoggedIn = false;
+        let allNewsData = []; // مصفوفة لحفظ الأخبار مؤقتاً لتسهيل عملية التعديل السريع
 
         function initSupabase() {
             try {
@@ -152,28 +161,27 @@
             if (panel.style.display === 'block') {
                 panel.style.display = 'none';
                 isAdminLoggedIn = false;
-                updateDeleteButtonsVisibility();
+                resetFormState();
+                updateAdminButtonsVisibility();
             } else {
                 const password = prompt("أدخل كلمة مرور إدارة أم الكرفس لدخول لوحة النشر:");
                 if (password === "12345") { 
                     panel.style.display = 'block';
                     panel.scrollIntoView({ behavior: 'smooth' });
                     isAdminLoggedIn = true;
-                    updateDeleteButtonsVisibility();
+                    updateAdminButtonsVisibility();
                 } else {
                     alert("كلمة المرور خاطئة!");
                     isAdminLoggedIn = false;
-                    updateDeleteButtonsVisibility();
+                    updateAdminButtonsVisibility();
                 }
             }
         }
 
-        // إظهار أو إخفاء أزرار الحذف بناءً على حالة تسجيل الدخول
-        function updateDeleteButtonsVisibility() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(btn => {
-                btn.style.display = isAdminLoggedIn ? 'block' : 'none';
-            });
+        function updateAdminButtonsVisibility() {
+            const displayStyle = isAdminLoggedIn ? 'block' : 'none';
+            document.querySelectorAll('.btn-delete').forEach(btn => btn.style.display = displayStyle);
+            document.querySelectorAll('.btn-edit').forEach(btn => btn.style.display = displayStyle);
         }
 
         function timeAgo(dateString) {
@@ -205,29 +213,55 @@
                         </div>
                         <div class="card-date">
                             <span>🕒 ${timeAgo(item.created_at)}</span>
-                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                            <div class="admin-actions">
+                                <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                                <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                            </div>
                         </div>
                     </div>
                 </article>
             `;
         }
 
-        // وظيفة حذف الخبر من السيرفر مباشرة
+        // تجهيز نموذج التعديل بالبيانات القديمة للخبر
+        function prepareEdit(id) {
+            const item = allNewsData.find(news => news.id === id);
+            if (!item) return;
+
+            document.getElementById('editNewsId').value = item.id;
+            document.getElementById('newsTitle').value = item.title;
+            document.getElementById('newsTag').value = item.tag;
+            document.getElementById('newsImage').value = item.image;
+            document.getElementById('newsSummary').value = item.summary;
+
+            // تغيير النصوص لتتناسب مع وضع التعديل
+            document.getElementById('panelTitle').innerText = "📝 تعديل الخبر الحالي";
+            document.getElementById('submitBtn').innerText = "🔄 تحديث الخبر الآن";
+            document.getElementById('cancelEditBtn').style.display = "block";
+
+            // رفع الشاشة إلى لوحة النشر تلقائياً
+            document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // إعادة تعيين النموذج إلى حالته الأصلية (وضع النشر)
+        function resetFormState() {
+            document.getElementById('newsForm').reset();
+            document.getElementById('editNewsId').value = "";
+            document.getElementById('panelTitle').innerText = "✍️ إضافة خبر جديد للمنصة";
+            document.getElementById('submitBtn').innerText = "🚀 نشر الخبر الآن";
+            document.getElementById('cancelEditBtn').style.display = "none";
+        }
+
         async function deleteNews(id) {
             if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
-            
             if (!supabaseClient) initSupabase();
             try {
-                const { error } = await supabaseClient
-                    .from('news')
-                    .delete()
-                    .eq('id', id);
-
+                const { error } = await supabaseClient.from('news').delete().eq('id', id);
                 if (error) {
                     alert("فشل الحذف: " + error.message);
                 } else {
-                    alert("🗑️ تم حذف الخبر بنجاح من منصة أم الكرفس!");
-                    loadNews(); // إعادة تحميل الأخبار لتحديث الصفحة
+                    alert("🗑️ تم حذف الخبر بنجاح!");
+                    loadNews();
                 }
             } catch (err) {
                 alert("خطأ في الاتصال: " + err.message);
@@ -246,17 +280,20 @@
 
                 if (error) throw error;
 
+                allNewsData = news; // تخزين البيانات محلياً
+
                 document.getElementById('zone-news').innerHTML = "";
                 document.getElementById('local-news').innerHTML = "";
                 document.getElementById('global-news').innerHTML = "";
 
                 news.forEach(item => {
+                    const cardHtml = createCard(item);
                     if (item.tag === "أم الكرفس") {
-                        document.getElementById('zone-news').innerHTML += createCard(item);
+                        document.getElementById('zone-news').innerHTML += cardHtml;
                     } else if (item.tag === "محلي") {
-                        document.getElementById('local-news').innerHTML += createCard(item);
+                        document.getElementById('local-news').innerHTML += cardHtml;
                     } else if (item.tag === "عالمي") {
-                        document.getElementById('global-news').innerHTML += createCard(item);
+                        document.getElementById('global-news').innerHTML += cardHtml;
                     }
                 });
             } catch (err) {
@@ -267,29 +304,45 @@
         document.getElementById('newsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!supabaseClient) initSupabase();
-            if (!supabaseClient) {
-                alert("جاري الاتصال بسيرفر البيانات...");
-                return;
-            }
 
+            const id = document.getElementById('editNewsId').value;
             const title = document.getElementById('newsTitle').value;
             const tag = document.getElementById('newsTag').value;
             const image = document.getElementById('newsImage').value;
             const summary = document.getElementById('newsSummary').value;
 
             try {
-                const { error } = await supabaseClient
-                    .from('news')
-                    .insert([{ title, tag, image, summary }]);
+                if (id) {
+                    // وضع التعديل (Update)
+                    const { error } = await supabaseClient
+                        .from('news')
+                        .update({ title, tag, image, summary })
+                        .eq('id', id);
 
-                if (error) {
-                    alert("حدث خطأ أثناء النشر: " + error.message);
+                    if (error) {
+                        alert("حدث خطأ أثناء التحديث: " + error.message);
+                    } else {
+                        alert("🔄 تم تحديث الخبر بنجاح في منصة أم الكرفس!");
+                        resetFormState();
+                        document.getElementById('adminPanel').style.display = 'none';
+                        isAdminLoggedIn = false;
+                        loadNews(); 
+                    }
                 } else {
-                    alert("🚀 تم نشر الخبر بنجاح في منصة أم الكرفس!");
-                    document.getElementById('newsForm').reset();
-                    document.getElementById('adminPanel').style.display = 'none';
-                    isAdminLoggedIn = false; // إغلاق حالة الآدمن لحماية الأزرار
-                    loadNews(); 
+                    // وضع النشر الجديد (Insert)
+                    const { error } = await supabaseClient
+                        .from('news')
+                        .insert([{ title, tag, image, summary }]);
+
+                    if (error) {
+                        alert("حدث خطأ أثناء النشر: " + error.message);
+                    } else {
+                        alert("🚀 تم نشر الخبر بنجاح!");
+                        resetFormState();
+                        document.getElementById('adminPanel').style.display = 'none';
+                        isAdminLoggedIn = false;
+                        loadNews(); 
+                    }
                 }
             } catch(err) {
                 alert("خطأ في الاتصال: " + err.message);
