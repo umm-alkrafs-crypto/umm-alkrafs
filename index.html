@@ -51,18 +51,35 @@
         .section-title { font-size: 24px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 40px 0 20px 0; }
         .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
         
-        /* البطاقات */
+        /* البطاقات المحدثة بارتفاع مرن للخبر الكامل */
         .news-card {
             background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
-            height: 460px; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: relative;
+            min-height: 440px; height: auto; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative; padding-bottom: 50px; /* مساحة ثابتة بالأسفل للتاريخ والأزرار */
         }
         .card-img { width: 100%; height: 180px; object-fit: cover; }
-        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
-        .card-title { font-size: 16px; font-weight: bold; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-text { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
-        .card-date { font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; }
+        .card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+        
+        /* ميزة التحكم بظهور النص */
+        .card-text { 
+            font-size: 13px; color: #666; line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
+        }
+        .card-text.expanded { display: block; overflow: visible; -webkit-line-clamp: unset; }
+        
+        /* رابط اقرأ المزيد */
+        .read-more-btn {
+            color: var(--primary-green); font-size: 12px; font-weight: bold; border: none; background: none;
+            cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
+        }
+
+        .card-footer-area {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 15px;
+            border-top: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-date { font-size: 11px; color: #999; }
         
         /* أزرار التحكم السرية */
         .admin-actions { display: flex; gap: 5px; }
@@ -90,7 +107,8 @@
     <div class="admin-panel" id="adminPanel">
         <h2 id="panelTitle">✍️ إضافة خبر جديد للمنصة</h2>
         <form id="newsForm">
-            <input type="hidden" id="editNewsId"> <div class="form-group">
+            <input type="hidden" id="editNewsId">
+            <div class="form-group">
                 <label>عنوان الخبر:</label>
                 <input type="text" id="newsTitle" required placeholder="اكتب عنواناً جذاباً ومختصراً...">
             </div>
@@ -108,7 +126,7 @@
             </div>
             <div class="form-group">
                 <label>نص المقالة / الملخص:</label>
-                <textarea id="newsSummary" rows="4" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
+                <textarea id="newsSummary" rows="6" required placeholder="اكتب تفاصيل أو ملخص الخبر هنا..."></textarea>
             </div>
             <button type="submit" id="submitBtn" class="btn-submit">🚀 نشر الخبر الآن</button>
             <button type="button" id="cancelEditBtn" class="btn-cancel" onclick="resetFormState()">إلغاء التعديل</button>
@@ -142,7 +160,7 @@
         
         let supabaseClient = null;
         let isAdminLoggedIn = false;
-        let allNewsData = []; // مصفوفة لحفظ الأخبار مؤقتاً لتسهيل عملية التعديل السريع
+        let allNewsData = [];
 
         function initSupabase() {
             try {
@@ -201,29 +219,43 @@
             return `منذ ${daysPast} أيام`;
         }
 
+        // دالة فتح وإغلاق الخبر الكامل عند الضغط على اقرأ المزيد
+        function toggleText(id, btn) {
+            const textElement = document.getElementById(`text-${id}`);
+            if (textElement.classList.contains('expanded')) {
+                textElement.classList.remove('expanded');
+                btn.innerText = "اقرأ المزيد...";
+            } else {
+                textElement.classList.add('expanded');
+                btn.innerText = "عرض أقل";
+            }
+        }
+
         function createCard(item) {
+            // التحقق مما إذا كان النص طويلاً يحتاج لزر "اقرأ المزيد" (تقريباً أكثر من 120 حرف)
+            const showReadMore = item.summary && item.summary.length > 120;
+            const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
+
             return `
                 <article class="news-card" id="card-${item.id}">
                     <img class="card-img" src="${item.image}" alt="${item.title}">
                     <div class="card-content">
-                        <div>
-                            <span class="card-tag">${item.tag}</span>
-                            <h3 class="card-title">${item.title}</h3>
-                            <p class="card-text">${item.summary}</p>
-                        </div>
-                        <div class="card-date">
-                            <span>🕒 ${timeAgo(item.created_at)}</span>
-                            <div class="admin-actions">
-                                <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
-                                <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
-                            </div>
+                        <span class="card-tag">${item.tag}</span>
+                        <h3 class="card-title">${item.title}</h3>
+                        <p class="card-text" id="text-${item.id}">${item.summary}</p>
+                        ${readMoreBtnHtml}
+                    </div>
+                    <div class="card-footer-area">
+                        <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
+                        <div class="admin-actions">
+                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${isAdminLoggedIn ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
                         </div>
                     </div>
                 </article>
             `;
         }
 
-        // تجهيز نموذج التعديل بالبيانات القديمة للخبر
         function prepareEdit(id) {
             const item = allNewsData.find(news => news.id === id);
             if (!item) return;
@@ -234,16 +266,13 @@
             document.getElementById('newsImage').value = item.image;
             document.getElementById('newsSummary').value = item.summary;
 
-            // تغيير النصوص لتتناسب مع وضع التعديل
             document.getElementById('panelTitle').innerText = "📝 تعديل الخبر الحالي";
             document.getElementById('submitBtn').innerText = "🔄 تحديث الخبر الآن";
             document.getElementById('cancelEditBtn').style.display = "block";
 
-            // رفع الشاشة إلى لوحة النشر تلقائياً
             document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // إعادة تعيين النموذج إلى حالته الأصلية (وضع النشر)
         function resetFormState() {
             document.getElementById('newsForm').reset();
             document.getElementById('editNewsId').value = "";
@@ -280,7 +309,7 @@
 
                 if (error) throw error;
 
-                allNewsData = news; // تخزين البيانات محلياً
+                allNewsData = news;
 
                 document.getElementById('zone-news').innerHTML = "";
                 document.getElementById('local-news').innerHTML = "";
@@ -313,7 +342,6 @@
 
             try {
                 if (id) {
-                    // وضع التعديل (Update)
                     const { error } = await supabaseClient
                         .from('news')
                         .update({ title, tag, image, summary })
@@ -329,7 +357,6 @@
                         loadNews(); 
                     }
                 } else {
-                    // وضع النشر الجديد (Insert)
                     const { error } = await supabaseClient
                         .from('news')
                         .insert([{ title, tag, image, summary }]);
