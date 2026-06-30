@@ -229,7 +229,7 @@
 
     <script>
         const SUPABASE_URL = "https://umm-alkrafs-cryptoband.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtbS1hbGtyYWZzLWNyeXB0b2JhbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1MTI0MTE5MSwiZXhwIjoyMD66ODE3MTkxfQ.E1eZ7-S0-rPclP8X5z_R4U6XmI2G4vRIn7z7U3pE67I";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtbS1hbGtyYWZzLWNyeXB0b2JhbmQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1MTI0MTE5MSwiZXhwIjoyMDY2ODE3MTkxfQ.E1eZ7-S0-rPclP8X5z_R4U6XmI2G4vRIn7z7U3pE67I";
         
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -297,7 +297,6 @@
                     .order('id', { ascending: false });
 
                 if (error) {
-                    // طباعة الخطأ القادم من السيرفر مباشرة على الشاشة لمعرفته
                     feed.innerHTML = `<div style="text-align:center; color:red; padding:20px; background:white; border-radius:10px;">
                         <h3>⚠️ عذراً، السيرفر يرفض الاتصال:</h3>
                         <p><b>كود الخطأ:</b> ${error.code}</p>
