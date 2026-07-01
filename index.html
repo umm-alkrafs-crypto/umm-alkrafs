@@ -84,49 +84,49 @@
 
         /* أقسام الأخبار للزوار */
         .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .section-title { font-size: 24px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 40px 0 20px 0; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .section-title { font-size: 20px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 30px 0 15px 0; }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
         
-        /* البطاقات */
+        /* البطاقات المعدلة - تم تصغير الحجم وإضافة إطار أسود */
         .news-card {
-            background: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;
-            min-height: 440px; height: auto; border: 1px solid rgba(46, 204, 113, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: relative; padding-bottom: 50px;
+            background: white; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;
+            min-height: 350px; height: auto; border: 2px solid #000000; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            position: relative; padding-bottom: 45px;
         }
-        .card-img { width: 100%; height: 180px; object-fit: cover; }
-        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
-        .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; }
-        .card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+        .card-img { width: 100%; height: 140px; object-fit: cover; }
+        .card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
+        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
         
         .card-text { 
-            font-size: 13px; color: #666; line-height: 1.6;
+            font-size: 12px; color: #555; line-height: 1.5;
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
         }
         .card-text.expanded { display: block; overflow: visible; -webkit-line-clamp: unset; }
         
         .read-more-btn {
-            color: var(--primary-green); font-size: 12px; font-weight: bold; border: none; background: none;
+            color: var(--primary-green); font-size: 11px; font-weight: bold; border: none; background: none;
             cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
         }
 
         .card-footer-area {
-            position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 15px;
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px;
             border-top: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: center;
         }
-        .card-date { font-size: 11px; color: #999; }
+        .card-date { font-size: 10px; color: #999; }
         
         /* أزرار التحكم السرية */
         .admin-actions { display: flex; gap: 5px; }
         .btn-delete {
             display: none; background: var(--danger-red); color: white; border: none;
-            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
+            padding: 3px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;
         }
         .btn-edit {
             display: none; background: var(--info-blue); color: white; border: none;
-            padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;
+            padding: 3px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;
         }
 
-        footer { background: var(--dark-gray); color: white; text-align: center; padding: 30px; margin-top: 60px; }
+        footer { background: var(--dark-gray); color: white; text-align: center; padding: 25px; margin-top: 50px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -135,7 +135,7 @@
         <div class="header-container">
             <a href="#" class="logo"> منصة أم الكرفس</a>
             
-            <!-- قسم أيقونات التواصل الاجتماعي الجديد -->
+            <!-- قسم أيقونات التواصل الاجتماعي -->
             <div class="social-media-icons">
                 <a href="#" target="_blank" title="تليجرام"><i class="fa-brands fa-telegram"></i></a>
                 <a href="https://www.facebook.com/share/1FeRuu3uTV/" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook"></i></a>
@@ -174,13 +174,16 @@
             </div>
             <div class="form-group">
                 <label>تصنيف الخبر (القسم):</label>
-                <!-- تحديث القائمة المنسدلة لتشمل الأقسام الإضافية -->
+                <!-- تحديث القائمة المنسدلة لتشمل أقسام دين وتاريخ وجغرافيا -->
                 <select id="newsTag" required>
                     <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
                     <option value="محلي">أخبار محلية</option>
                     <option value="سياسة">سياسة</option>
                     <option value="صحة">صحة</option>
                     <option value="رياضة">رياضة</option>
+                    <option value="دين">دين</option>
+                    <option value="تاريخ">تاريخ</option>
+                    <option value="جغرافيا">جغرافيا</option>
                     <option value="عالمي">أخبار عالمية</option>
                 </select>
             </div>
@@ -208,7 +211,6 @@
             <div class="news-grid" id="local-news"></div>
         </section>
 
-        <!-- الأقسام الجديدة المضافة لعرض البيانات بالقنوات المناسبة -->
         <section>
             <h2 class="section-title">سياسة</h2>
             <div class="news-grid" id="politics-news"></div>
@@ -222,6 +224,22 @@
         <section>
             <h2 class="section-title">رياضة</h2>
             <div class="news-grid" id="sports-news"></div>
+        </section>
+
+        <!-- الأقسام الجديدة المضافة لعرض البيانات -->
+        <section>
+            <h2 class="section-title">دين</h2>
+            <div class="news-grid" id="religion-news"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title">تاريخ</h2>
+            <div class="news-grid" id="history-news"></div>
+        </section>
+
+        <section>
+            <h2 class="section-title">جغرافيا</h2>
+            <div class="news-grid" id="geography-news"></div>
         </section>
 
         <section>
@@ -339,7 +357,7 @@
         }
 
         function createCard(item, sessionActive) {
-            const showReadMore = item.summary && item.summary.length > 120;
+            const showReadMore = item.summary && item.summary.length > 100;
             const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
 
             return `
@@ -422,6 +440,9 @@
                 document.getElementById('politics-news').innerHTML = "";
                 document.getElementById('health-news').innerHTML = "";
                 document.getElementById('sports-news').innerHTML = "";
+                document.getElementById('religion-news').innerHTML = "";
+                document.getElementById('history-news').innerHTML = "";
+                document.getElementById('geography-news').innerHTML = "";
                 document.getElementById('global-news').innerHTML = "";
 
                 news.forEach(item => {
@@ -436,6 +457,12 @@
                         document.getElementById('health-news').innerHTML += cardHtml;
                     } else if (item.tag === "رياضة") {
                         document.getElementById('sports-news').innerHTML += cardHtml;
+                    } else if (item.tag === "دين") {
+                        document.getElementById('religion-news').innerHTML += cardHtml;
+                    } else if (item.tag === "تاريخ") {
+                        document.getElementById('history-news').innerHTML += cardHtml;
+                    } else if (item.tag === "جغرافيا") {
+                        document.getElementById('geography-news').innerHTML += cardHtml;
                     } else if (item.tag === "عالمي") {
                         document.getElementById('global-news').innerHTML += cardHtml;
                     }
