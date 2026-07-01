@@ -210,7 +210,6 @@
     </div>
 
     <main class="main-container">
-        <!-- الأقسام التسعة للمنصة الإخبارية -->
         <section><h2 class="section-title">أخبار المنطقة</h2><div class="news-grid" id="zone-news"></div></section>
         <section><h2 class="section-title">أخبار محلية</h2><div class="news-grid" id="local-news"></div></section>
         <section><h2 class="section-title">سياسة</h2><div class="news-grid" id="politics-news"></div></section>
@@ -320,35 +319,33 @@
             return `منذ ${daysPast} أيام`;
         }
 
-        // دالة حقيقية لزيادة العدادات عند الضغط على الخبر (محدثة لتخطي قيود الأمان)
+        // دالة الزيادة الاحترافية عبر الـ RPC لمنع التصفير نهائياً
         async function incrementCounter(id, type) {
             try {
                 const item = allNewsData.find(news => news.id === id);
                 if (!item) return;
 
-                let updatedData = {};
                 if (type === 'view') {
                     const currentViews = parseInt(item.views || 0) + 1;
-                    updatedData = { views: currentViews };
                     item.views = currentViews; 
                     const el = document.getElementById(`views-count-${id}`);
                     if (el) el.innerText = currentViews;
+
+                    // استدعاء دالة السيرفر للمشاهدات
+                    await supabaseClient.rpc('increment_views', { row_id: id });
+
                 } else if (type === 'read') {
                     const currentReaders = parseInt(item.readers || 0) + 1;
-                    updatedData = { readers: currentReaders };
                     item.readers = currentReaders; 
                     const el = document.getElementById(`readers-count-${id}`);
                     if (el) el.innerText = currentReaders;
+
+                    // استدعاء دالة السيرفر للقراء
+                    await supabaseClient.rpc('increment_readers', { row_id: id });
                 }
 
-                // الحفظ المباشر في قاعدة البيانات
-                await supabaseClient
-                    .from('news')
-                    .update(updatedData)
-                    .eq('id', id);
-
             } catch (err) {
-                console.error("خطأ في تحديث العداد الحقيقي:", err);
+                console.error("خطأ في تحديث العداد عبر الـ RPC:", err);
             }
         }
 
@@ -546,4 +543,3 @@
     </script>
 </body>
 </html>
-
