@@ -93,10 +93,10 @@
             min-height: 380px; height: auto; border: 2px solid #000000; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             position: relative; padding-bottom: 55px;
         }
-        .card-img { width: 100%; height: 160px; object-fit: cover; display: block; cursor: pointer; }
+        .card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
         .card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
-        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; cursor: pointer; }
+        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
         .card-title:hover { color: var(--primary-green); }
         
         .card-text { 
@@ -110,7 +110,7 @@
             cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
         }
 
-        /* تعديل منطقة أسفل البطاقة لتستوعب العدادات والأوقات */
+        /* تعديل منطقة أسفل البطاقة لتستوعب العداد والأوقات */
         .card-footer-area {
             position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px;
             border-top: 1px solid #eee; background: #fff; display: flex; flex-direction: column; gap: 5px;
@@ -118,10 +118,9 @@
         .footer-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .card-date { font-size: 10px; color: #999; }
         
-        /* تنسيقات عدادات الزوار والقراء الحقيقية */
+        /* تنسيقات العدادات الحقيقية (الكتاب المفتوح فقط للزائر) */
         .card-stats { display: flex; gap: 10px; font-size: 11px; color: #7f8c8d; }
         .stat-item { display: flex; align-items: center; gap: 4px; }
-        .stat-item i.fa-eye { color: #3498db; } 
         .stat-item i.fa-book-open { color: #2ecc71; } 
 
         .footer-admin-row { display: flex; justify-content: flex-end; width: 100%; border-top: 1px dashed #eee; padding-top: 4px; margin-top: 2px; }
@@ -319,28 +318,29 @@
             return `منذ ${daysPast} أيام`;
         }
 
-        // دالة الزيادة الاحترافية عبر الـ RPC لمنع التصفير نهائياً
+        // دالة الزيادة الذكية المحدثة لحماية التكرار من نفس المتصفح لحساب عداد القراء
         async function incrementCounter(id, type) {
             try {
+                const storageKey = `${type}_news_${id}`;
+                
+                // منع الزائر من تسجيل قراءة مكررة لنفس الخبر
+                if (localStorage.getItem(storageKey)) {
+                    return; 
+                }
+
                 const item = allNewsData.find(news => news.id === id);
                 if (!item) return;
 
-                if (type === 'view') {
-                    const currentViews = parseInt(item.views || 0) + 1;
-                    item.views = currentViews; 
-                    const el = document.getElementById(`views-count-${id}`);
-                    if (el) el.innerText = currentViews;
-
-                    // استدعاء دالة السيرفر للمشاهدات
-                    await supabaseClient.rpc('increment_views', { row_id: id });
-
-                } else if (type === 'read') {
+                if (type === 'read') {
                     const currentReaders = parseInt(item.readers || 0) + 1;
                     item.readers = currentReaders; 
                     const el = document.getElementById(`readers-count-${id}`);
                     if (el) el.innerText = currentReaders;
 
-                    // استدعاء دالة السيرفر للقراء
+                    // وسم المتصفح بعلامة القراءة لمنع التكرار
+                    localStorage.setItem(storageKey, 'true');
+
+                    // تحديث آمن على السيرفر بقيمة +1 عبر الـ RPC
                     await supabaseClient.rpc('increment_readers', { row_id: id });
                 }
 
@@ -365,15 +365,14 @@
             const showReadMore = item.summary && item.summary.length > 100;
             const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
 
-            const realViews = item.views || 0;
             const realReaders = item.readers || 0;
 
             return `
                 <article class="news-card" id="card-${item.id}">
-                    <img class="card-img" src="${item.image}" alt="${item.title}" onclick="incrementCounter(${item.id}, 'view')">
+                    <img class="card-img" src="${item.image}" alt="${item.title}">
                     <div class="card-content">
                         <span class="card-tag">${item.tag}</span>
-                        <h3 class="card-title" onclick="incrementCounter(${item.id}, 'view')">${item.title}</h3>
+                        <h3 class="card-title">${item.title}</h3>
                         <p class="card-text" id="text-${item.id}">${item.summary}</p>
                         ${readMoreBtnHtml}
                     </div>
@@ -381,9 +380,6 @@
                         <div class="footer-top-row">
                             <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
                             <div class="card-stats">
-                                <span class="stat-item" title="عدد الزوار الفريدين بالضغط على الصورة او العنوان" onclick="incrementCounter(${item.id}, 'view')">
-                                    <i class="fa-solid fa-eye"></i> <b id="views-count-${item.id}">${realViews}</b>
-                                </span>
                                 <span class="stat-item" title="عدد القراء الفعليين الذين ضغطوا اقرأ المزيد">
                                     <i class="fa-solid fa-book-open"></i> <b id="readers-count-${item.id}">${realReaders}</b>
                                 </span>
