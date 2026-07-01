@@ -82,18 +82,23 @@
         .btn-submit:hover { opacity: 0.9; }
         .btn-cancel { background: #95a5a6; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; width: 100%; display: none; }
 
-        /* أقسام الأخبار للزوار */
-        .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .section-title { font-size: 20px; border-right: 5px solid var(--primary-green); padding-right: 10px; margin: 30px 0 15px 0; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+        /* أقسام الأخبار للزوار - تم تصغير الفراغات بين الأقسام */
+        .main-container { max-width: 1200px; margin: 15px auto; padding: 0 20px; }
         
-        /* البطاقات المعدلة - تم تصغير الحجم وإضافة إطار أسود */
+        /* تصغير حجم العناوين والفراغات الخاصة بالأقسام */
+        .section-title { font-size: 18px; border-right: 4px solid var(--primary-green); padding-right: 8px; margin: 20px 0 10px 0; }
+        
+        /* ضبط المقاس لمنع انضغاط الصورة عمودياً */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        
+        /* البطاقات مع إطار أسود وضبط الارتفاع */
         .news-card {
             background: white; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;
-            min-height: 350px; height: auto; border: 2px solid #000000; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            min-height: 380px; height: auto; border: 2px solid #000000; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             position: relative; padding-bottom: 45px;
         }
-        .card-img { width: 100%; height: 140px; object-fit: cover; }
+        /* ضبط أبعاد الصورة لتظهر واضحة بالكامل من الأعلى */
+        .card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
         .card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
         .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
@@ -126,7 +131,7 @@
             padding: 3px 6px; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;
         }
 
-        footer { background: var(--dark-gray); color: white; text-align: center; padding: 25px; margin-top: 50px; font-size: 14px; }
+        footer { background: var(--dark-gray); color: white; text-align: center; padding: 25px; margin-top: 40px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -174,7 +179,6 @@
             </div>
             <div class="form-group">
                 <label>تصنيف الخبر (القسم):</label>
-                <!-- تحديث القائمة المنسدلة لتشمل أقسام دين وتاريخ وجغرافيا -->
                 <select id="newsTag" required>
                     <option value="أم الكرفس">أخبار المنطقة (أم الكرفس)</option>
                     <option value="محلي">أخبار محلية</option>
@@ -226,7 +230,6 @@
             <div class="news-grid" id="sports-news"></div>
         </section>
 
-        <!-- الأقسام الجديدة المضافة لعرض البيانات -->
         <section>
             <h2 class="section-title">دين</h2>
             <div class="news-grid" id="religion-news"></div>
@@ -406,7 +409,7 @@
         }
 
         async function deleteNews(id) {
-            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
+            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة?")) return;
             try {
                 const { error } = await supabaseClient.from('news').delete().eq('id', id);
                 if (error) {
