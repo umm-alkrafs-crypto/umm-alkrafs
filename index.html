@@ -82,26 +82,22 @@
         .btn-submit:hover { opacity: 0.9; }
         .btn-cancel { background: #95a5a6; color: white; padding: 10px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; width: 100%; display: none; }
 
-        /* أقسام الأخبار للزوار - تم تصغير الفراغات بين الأقسام */
+        /* أقسام الأخبار للزوار */
         .main-container { max-width: 1200px; margin: 15px auto; padding: 0 20px; }
-        
-        /* تصغير حجم العناوين والفراغات الخاصة بالأقسام */
         .section-title { font-size: 18px; border-right: 4px solid var(--primary-green); padding-right: 8px; margin: 20px 0 10px 0; }
-        
-        /* ضبط المقاس لمنع انضغاط الصورة عمودياً */
         .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         
-        /* البطاقات مع إطار أسود وضبط الارتفاع */
+        /* البطاقات مع إطار أسود */
         .news-card {
             background: white; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column;
             min-height: 380px; height: auto; border: 2px solid #000000; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            position: relative; padding-bottom: 45px;
+            position: relative; padding-bottom: 55px;
         }
-        /* ضبط أبعاد الصورة لتظهر واضحة بالكامل من الأعلى */
-        .card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+        .card-img { width: 100%; height: 160px; object-fit: cover; display: block; cursor: pointer; }
         .card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
         .card-tag { align-self: flex-start; background: var(--accent-yellow); color: var(--dark-gray); font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; }
-        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; }
+        .card-title { font-size: 14px; font-weight: bold; margin-bottom: 6px; line-height: 1.4; cursor: pointer; }
+        .card-title:hover { color: var(--primary-green); }
         
         .card-text { 
             font-size: 12px; color: #555; line-height: 1.5;
@@ -114,11 +110,21 @@
             cursor: pointer; display: inline-block; text-align: right; margin-top: 5px; padding: 0;
         }
 
+        /* تعديل منطقة أسفل البطاقة لتستوعب العدادات والأوقات */
         .card-footer-area {
             position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px;
-            border-top: 1px solid #eee; background: #fff; display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid #eee; background: #fff; display: flex; flex-direction: column; gap: 5px;
         }
+        .footer-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .card-date { font-size: 10px; color: #999; }
+        
+        /* تنسيقات عدادات الزوار والقراء الحقيقية */
+        .card-stats { display: flex; gap: 10px; font-size: 11px; color: #7f8c8d; }
+        .stat-item { display: flex; align-items: center; gap: 4px; }
+        .stat-item i.fa-eye { color: #3498db; } 
+        .stat-item i.fa-book-open { color: #2ecc71; } 
+
+        .footer-admin-row { display: flex; justify-content: flex-end; width: 100%; border-top: 1px dashed #eee; padding-top: 4px; margin-top: 2px; }
         
         /* أزرار التحكم السرية */
         .admin-actions { display: flex; gap: 5px; }
@@ -140,7 +146,6 @@
         <div class="header-container">
             <a href="#" class="logo"> منصة أم الكرفس</a>
             
-            <!-- قسم أيقونات التواصل الاجتماعي -->
             <div class="social-media-icons">
                 <a href="#" target="_blank" title="تليجرام"><i class="fa-brands fa-telegram"></i></a>
                 <a href="https://www.facebook.com/share/1FeRuu3uTV/" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook"></i></a>
@@ -205,50 +210,16 @@
     </div>
 
     <main class="main-container">
-        <section>
-            <h2 class="section-title">أخبار المنطقة</h2>
-            <div class="news-grid" id="zone-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">أخبار محلية</h2>
-            <div class="news-grid" id="local-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">سياسة</h2>
-            <div class="news-grid" id="politics-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">صحة</h2>
-            <div class="news-grid" id="health-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">رياضة</h2>
-            <div class="news-grid" id="sports-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">دين</h2>
-            <div class="news-grid" id="religion-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">تاريخ</h2>
-            <div class="news-grid" id="history-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">جغرافيا</h2>
-            <div class="news-grid" id="geography-news"></div>
-        </section>
-
-        <section>
-            <h2 class="section-title">أخبار عالمية</h2>
-            <div class="news-grid" id="global-news"></div>
-        </section>
+        <!-- الأقسام التسعة للمنصة الإخبارية -->
+        <section><h2 class="section-title">أخبار المنطقة</h2><div class="news-grid" id="zone-news"></div></section>
+        <section><h2 class="section-title">أخبار محلية</h2><div class="news-grid" id="local-news"></div></section>
+        <section><h2 class="section-title">سياسة</h2><div class="news-grid" id="politics-news"></div></section>
+        <section><h2 class="section-title">صحة</h2><div class="news-grid" id="health-news"></div></section>
+        <section><h2 class="section-title">رياضة</h2><div class="news-grid" id="sports-news"></div></section>
+        <section><h2 class="section-title">دين</h2><div class="news-grid" id="religion-news"></div></section>
+        <section><h2 class="section-title">تاريخ</h2><div class="news-grid" id="history-news"></div></section>
+        <section><h2 class="section-title">جغرافيا</h2><div class="news-grid" id="geography-news"></div></section>
+        <section><h2 class="section-title">أخبار عالمية</h2><div class="news-grid" id="global-news"></div></section>
     </main>
 
     <footer>
@@ -329,6 +300,7 @@
             const displayStyle = isLoggedIn ? 'block' : 'none';
             document.querySelectorAll('.btn-delete').forEach(btn => btn.style.display = displayStyle);
             document.querySelectorAll('.btn-edit').forEach(btn => btn.style.display = displayStyle);
+            document.querySelectorAll('.footer-admin-row').forEach(row => row.style.display = isLoggedIn ? 'flex' : 'none');
         }
 
         function timeAgo(dateString) {
@@ -348,6 +320,33 @@
             return `منذ ${daysPast} أيام`;
         }
 
+        // دالة حقيقية لزيادة العدادات عند الضغط على الخبر
+        async function incrementCounter(id, type) {
+            try {
+                // نأخذ القيمة الحالية للخبر المستهدف
+                const item = allNewsData.find(news => news.id === id);
+                if (!item) return;
+
+                let updatedData = {};
+                if (type === 'view') {
+                    const currentViews = parseInt(item.views || 0) + 1;
+                    updatedData = { views: currentViews };
+                    item.views = currentViews; // تحديث الذاكرة المحلية فوراً
+                    document.getElementById(`views-count-${id}`).innerText = currentViews;
+                } else if (type === 'read') {
+                    const currentReaders = parseInt(item.readers || 0) + 1;
+                    updatedData = { readers: currentReaders };
+                    item.readers = currentReaders; // تحديث الذاكرة المحلية فوراً
+                    document.getElementById(`readers-count-${id}`).innerText = currentReaders;
+                }
+
+                // إرسال التحديث الحقيقي لقاعدة بيانات Supabase بدون شرط الصلاحيات للزوار
+                await supabaseClient.from('news').update(updatedData).eq('id', id);
+            } catch (err) {
+                console.error("حطأ في تحديث العداد الحقيقي:", err);
+            }
+        }
+
         function toggleText(id, btn) {
             const textElement = document.getElementById(`text-${id}`);
             if (textElement.classList.contains('expanded')) {
@@ -356,6 +355,8 @@
             } else {
                 textElement.classList.add('expanded');
                 btn.innerText = "عرض أقل";
+                // زيادة عداد القراء الحقيقي عندما يقوم بفتح وتوسيع الخبر بالكامل لقراءته
+                incrementCounter(id, 'read');
             }
         }
 
@@ -363,20 +364,37 @@
             const showReadMore = item.summary && item.summary.length > 100;
             const readMoreBtnHtml = showReadMore ? `<button class="read-more-btn" onclick="toggleText(${item.id}, this)">اقرأ المزيد...</button>` : '';
 
+            // جلب الأرقام الحقيقية المخزنة بقاعدة البيانات وإذا كانت فارغة تبدأ من 0
+            const realViews = item.views || 0;
+            const realReaders = item.readers || 0;
+
             return `
                 <article class="news-card" id="card-${item.id}">
-                    <img class="card-img" src="${item.image}" alt="${item.title}">
+                    <img class="card-img" src="${item.image}" alt="${item.title}" onclick="incrementCounter(${item.id}, 'view')">
                     <div class="card-content">
                         <span class="card-tag">${item.tag}</span>
-                        <h3 class="card-title">${item.title}</h3>
+                        <h3 class="card-title" onclick="incrementCounter(${item.id}, 'view')">${item.title}</h3>
                         <p class="card-text" id="text-${item.id}">${item.summary}</p>
                         ${readMoreBtnHtml}
                     </div>
                     <div class="card-footer-area">
-                        <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
-                        <div class="admin-actions">
-                            <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
-                            <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                        <div class="footer-top-row">
+                            <div class="card-date">🕒 ${timeAgo(item.created_at)}</div>
+                            <!-- عدادات حقيقية ومرتبطة بـ معرف الخبر -->
+                            <div class="card-stats">
+                                <span class="stat-item" title="عدد الزوار الفريدين بالضغط على الصورة او العنوان" onclick="incrementCounter(${item.id}, 'view')">
+                                    <i class="fa-solid fa-eye"></i> <b id="views-count-${item.id}">${realViews}</b>
+                                </span>
+                                <span class="stat-item" title="عدد القراء الفعليين الذين ضغطوا اقرأ المزيد">
+                                    <i class="fa-solid fa-book-open"></i> <b id="readers-count-${item.id}">${realReaders}</b>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="footer-admin-row" style="display: ${sessionActive ? 'flex' : 'none'}">
+                            <div class="admin-actions">
+                                <button class="btn-edit" onclick="prepareEdit(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-pen-to-square"></i> تعديل</button>
+                                <button class="btn-delete" onclick="deleteNews(${item.id})" style="display: ${sessionActive ? 'block' : 'none'}"><i class="fa-solid fa-trash"></i> حذف</button>
+                            </div>
                         </div>
                     </div>
                 </article>
@@ -409,7 +427,7 @@
         }
 
         async function deleteNews(id) {
-            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة?")) return;
+            if (!confirm("هل أنت متأكد تماماً من رغبتك في حذف هذا الخبر نهائياً من المنصة؟")) return;
             try {
                 const { error } = await supabaseClient.from('news').delete().eq('id', id);
                 if (error) {
@@ -470,6 +488,8 @@
                         document.getElementById('global-news').innerHTML += cardHtml;
                     }
                 });
+                
+                updateAdminButtonsVisibility(sessionActive);
             } catch (err) {
                 console.error("Error loading news:", err.message);
             }
@@ -499,9 +519,10 @@
                         loadNews(); 
                     }
                 } else {
+                    // عند إضافة خبر جديد، نضع قيم افتراضية للعدادات وهي 0 زوار وقراء
                     const { error } = await supabaseClient
                         .from('news')
-                        .insert([{ title, tag, image, summary }]);
+                        .insert([{ title, tag, image, summary, views: 0, readers: 0 }]);
 
                     if (error) {
                         alert("سكيورتي السيرفر رفض النشر المباشر! تأكد من تسجيل دخولك أولاً.");
